@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+rapports/
+.gist_ids.json
+test_*.py
+*.log
+*.tmp
+
+.env copy
+.env copy*

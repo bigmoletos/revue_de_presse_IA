@@ -1,0 +1,5 @@
+flask>=3.0
+apscheduler>=3.10
+requests>=2.32
+deep-translator>=1.11
+python-dotenv>=1.0
