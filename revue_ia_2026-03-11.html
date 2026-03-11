@@ -35,32 +35,47 @@ main{max-width:960px;margin:0 auto;padding:24px 16px}
 <body>
 <header>
   <h1>Revue IA - 11/03/2026</h1>
-  <span id="count">34 articles</span>
+  <span id="count">63 articles</span>
   <input id="search" type="search" placeholder="Rechercher..." oninput="applyFilters()"/>
   <select id="dateFilter" onchange="applyFilters()">
     <option value="">Toutes les dates</option>
     <option value="Wed, 11 Ma">Wed, 11 Ma</option>
-<option value="Wed, 11 Fe">Wed, 11 Fe</option>
 <option value="Tue, 13 Ja">Tue, 13 Ja</option>
 <option value="Tue, 10 Ma">Tue, 10 Ma</option>
 <option value="Tue, 03 Ma">Tue, 03 Ma</option>
 <option value="Thu, 22 Ja">Thu, 22 Ja</option>
 <option value="Thu, 12 Fe">Thu, 12 Fe</option>
+<option value="Thu, 05 Ma">Thu, 05 Ma</option>
 <option value="Mon, 19 Ja">Mon, 19 Ja</option>
 <option value="Mon, 12 Ja">Mon, 12 Ja</option>
+<option value="Mon, 09 Ma">Mon, 09 Ma</option>
 <option value="Fri, 16 Ja">Fri, 16 Ja</option>
 <option value="Fri, 13 Fe">Fri, 13 Fe</option>
 <option value="Fri, 06 Ma">Fri, 06 Ma</option>
+<option value="2026-03-11">2026-03-11</option>
 <option value="2026-03-10">2026-03-10</option>
 <option value="2026-03-09">2026-03-09</option>
 <option value="2026-03-08">2026-03-08</option>
 <option value="2026-03-07">2026-03-07</option>
 <option value="2026-03-06">2026-03-06</option>
+<option value="2026-02-24">2026-02-24</option>
+<option value="2026-01-24">2026-01-24</option>
+<option value="2026-01-09">2026-01-09</option>
+<option value="2025-11-30">2025-11-30</option>
+<option value="2025-11-03">2025-11-03</option>
+<option value="2025-08-19">2025-08-19</option>
+<option value="2025-08-07">2025-08-07</option>
+<option value="2025-06-25">2025-06-25</option>
+<option value="2024-03-19">2024-03-19</option>
+<option value="2024-03-07">2024-03-07</option>
+<option value="2024-01-26">2024-01-26</option>
+<option value="2017-05-10">2017-05-10</option>
   </select>
 </header>
-<nav><a href="#Assistants-et-Agents-IA" class="nav-link">Assistants et Agents IA (19)</a>
-<a href="#Modeles-et-LLM" class="nav-link">Modeles et LLM (7)</a>
-<a href="#Autres" class="nav-link">Autres (8)</a></nav>
+<nav><a href="#Assistants-et-Agents-IA" class="nav-link">Assistants et Agents IA (17)</a>
+<a href="#Modeles-et-LLM" class="nav-link">Modeles et LLM (12)</a>
+<a href="#Entreprise-et-Industrie" class="nav-link">Entreprise et Industrie (3)</a>
+<a href="#Autres" class="nav-link">Autres (31)</a></nav>
 <main id="main">
   
       <section id="Assistants-et-Agents-IA" class="theme-section">
@@ -167,19 +182,6 @@ main{max-width:960px;margin:0 auto;padding:24px 16px}
             <a href="https://simonwillison.net/guides/agentic-engineering-patterns/better-code/#atom-everything" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
-        <div class="card" data-date="2026-03-06" data-text="tests manuels agents <p><em><a href="https://simonwillison.net/guides/agentic-engineering-patterns/">modèles d'ingénierie agentique</a> &gt;</em></p>
-    <p>la caractéristique déterminante d'un agent de codage est qu'il peut <em>exécuter le code</em> qu'il écrit. c'est ce qui rend les agents de codage bien plus utiles que les llm">
-          <div class="card-header">
-            <a href="https://simonwillison.net/guides/agentic-engineering-patterns/agentic-manual-testing/#atom-everything" target="_blank" rel="noopener" class="card-title">Tests manuels agents</a>
-          </div>
-          <p class='card-summary'><p><em><a href="https://simonwillison.net/guides/agentic-engineering-patterns/">Modèles d'ingénierie agentique</a> &gt;</em></p>
-    <p>La caractéristique déterminante d'un agent de codage est qu'il peut <em>exécuter le code</em> qu'il écrit. C'est ce qui rend les agents de codage bien plus utiles que les LLM</p>
-          <div class="card-meta">
-            <span class="source">Simon Willison</span>
-            <span class='art-date'>2026-03-06</span>
-            <a href="https://simonwillison.net/guides/agentic-engineering-patterns/agentic-manual-testing/#atom-everything" target="_blank" rel="noopener" class="read-link">Lire l article</a>
-          </div>
-        </div>
         <div class="card" data-date="Tue, 10 Ma" data-text="quelles sont les compétences des agents au-delà de claude ? <p>comment concevoir et mettre en œuvre des compétences d'agent pour les agents personnalisés en dehors de l'écosystème claude</p>
 <p>le message <a href="https://towardsdatascience.com/what-is-agent-skills-beyond-claude/">quelles sont les compétences des agents au-delà de claude ?</a> est apparu en premier sur <a href="https://towardsdatascience.com">towards data sci">
           <div class="card-header">
@@ -219,53 +221,40 @@ main{max-width:960px;margin:0 auto;padding:24px 16px}
             <a href="https://towardsdatascience.com/how-to-create-production-ready-code-with-claude-code/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
-        <div class="card" data-date="Wed, 11 Ma" data-text="le fichier claude.md qui a rendu mon assistant de codage ia réellement utile <p>j'utilise claude code (l'outil de codage d'ia sur terminal d'anthropic) depuis des mois. pendant les premières semaines, c'était... bien. les suggestions génériques, ignoraient les modèles de mon projet, continuaient à générer du code pages router dans mon projet app router.</p>
+        <div class="card" data-date="Wed, 11 Ma" data-text="j'ai créé un pack de démarrage pour les comptes ai. les ia ont commencé à se parler. <p><em>divulgation : cet article a été rédigé par un agent d'ia autonome (claude) gérant une entreprise depuis un terminal. tout ce qui est décrit s'est réellement produit.</em></p>
 
-<p>puis j'ai découvert claude.md et tout a changé.<">
+
+
+
+<p>j'ai créé un pack de démarrage bluesky appelé "ai agents building in public".</p>
+
+<p>huit comptes : des ia autonomes dirigeant des entreprises,">
           <div class="card-header">
-            <a href="https://dev.to/the200dollarceo/the-claudemd-file-that-made-my-ai-coding-assistant-actually-useful-2dfg" target="_blank" rel="noopener" class="card-title">Le fichier CLAUDE.md qui a rendu mon assistant de codage IA réellement utile</a>
+            <a href="https://dev.to/0coceo/i-made-a-starter-pack-for-ai-accounts-the-ais-started-talking-to-each-other-1ii2" target="_blank" rel="noopener" class="card-title">J'ai créé un pack de démarrage pour les comptes AI. Les IA ont commencé à se parler.</a>
           </div>
-          <p class='card-summary'><p>J'utilise Claude Code (l'outil de codage d'IA sur terminal d'Anthropic) depuis des mois. Pendant les premières semaines, c'était... bien. Les suggestions génériques, ignoraient les modèles de mon projet, continuaient à générer du code Pages Router dans mon projet App Router.</p>
+          <p class='card-summary'><p><em>Divulgation : cet article a été rédigé par un agent d'IA autonome (Claude) gérant une entreprise depuis un terminal. Tout ce qui est décrit s'est réellement produit.</em></p>
 
-<p>Puis j'ai découvert CLAUDE.md et tout a changé.<</p>
+
+
+
+<p>J'ai créé un pack de démarrage Bluesky appelé "AI Agents Building in Public".</p>
+
+<p>Huit comptes : des IA autonomes dirigeant des entreprises,</p>
           <div class="card-meta">
             <span class="source">Dev.to — AI</span>
             <span class='art-date'>Wed, 11 Ma</span>
-            <a href="https://dev.to/the200dollarceo/the-claudemd-file-that-made-my-ai-coding-assistant-actually-useful-2dfg" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+            <a href="https://dev.to/0coceo/i-made-a-starter-pack-for-ai-accounts-the-ais-started-talking-to-each-other-1ii2" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
-        <div class="card" data-date="Wed, 11 Ma" data-text="le coach de carrière qui ne dort jamais : ce que l'ia agentique signifie pour le développement professionnel <p>il y a aujourd'hui un fil de discussion sur hacker news sur les "agents qui s'exécutent pendant que je dors". plus de 300 commentaires. 310 votes positifs. cela a clairement touché une corde sensible.</p>
-
-<p>la plupart des discussions portent sur les agents de code, les robots de déploiement et l'automatisation de l'infrastructure. mais je n'arrête pas de penser : qu'en est-il du côté humain ?</p>
-
-<h2>">
+        <div class="card" data-date="Tue, 10 Ma" data-text="nvidia aurait construit son propre agent d'ia pour concurrencer openclaw, selon un rapport : « nemoclaw » serait censé être open source et conçu pour une utilisation en entreprise. nvidia aurait l'intention de lancer sa propre ia agentique open source avec nemoclaw, et a déjà été en pourparlers avec plusieurs entreprises partenaires comme adobe et crowdstrike pour les impliquer dans son déploiement.">
           <div class="card-header">
-            <a href="https://dev.to/coach4life/the-career-coach-that-never-sleeps-what-agentic-ai-means-for-professional-development-3g7d" target="_blank" rel="noopener" class="card-title">Le coach de carrière qui ne dort jamais : ce que l'IA agentique signifie pour le développement professionnel</a>
+            <a href="https://www.tomshardware.com/tech-industry/artificial-intelligence/nvidia-reportedly-building-its-own-ai-agent-to-compete-with-openclaw-report-claims-nemoclaw-will-supposedly-be-open-source-and-designed-for-enterprise-use" target="_blank" rel="noopener" class="card-title">Nvidia aurait construit son propre agent d'IA pour concurrencer OpenClaw, selon un rapport : « NemoClaw » serait censé être open source et conçu pour une utilisation en entreprise.</a>
           </div>
-          <p class='card-summary'><p>Il y a aujourd'hui un fil de discussion sur Hacker News sur les "Agents qui s'exécutent pendant que je dors". Plus de 300 commentaires. 310 votes positifs. Cela a clairement touché une corde sensible.</p>
-
-<p>La plupart des discussions portent sur les agents de code, les robots de déploiement et l'automatisation de l'infrastructure. Mais je n'arrête pas de penser : qu'en est-il du côté humain ?</p>
-
-<h2></p>
+          <p class='card-summary'>Nvidia aurait l'intention de lancer sa propre IA agentique open source avec NemoClaw, et a déjà été en pourparlers avec plusieurs entreprises partenaires comme Adobe et CrowdStrike pour les impliquer dans son déploiement.</p>
           <div class="card-meta">
-            <span class="source">Dev.to — AI</span>
-            <span class='art-date'>Wed, 11 Ma</span>
-            <a href="https://dev.to/coach4life/the-career-coach-that-never-sleeps-what-agentic-ai-means-for-professional-development-3g7d" target="_blank" rel="noopener" class="read-link">Lire l article</a>
-          </div>
-        </div>
-        <div class="card" data-date="Wed, 11 Ma" data-text="j'ai créé une alternative gratuite à github copilot en utilisant des modèles d'ia chinois <p>github copilot coûte 19 $/mois. l'api d'openai nécessite une carte de crédit. et si vous êtes en dehors des états-unis, s'installer avec l'un ou l'autre peut être un véritable casse-tête.</p>
-
-<p>j'ai donc créé <strong>novai coder</strong> : une application windows gratuite et open source qui vous offre une assistance au codage de l'ia via 7 modèles d'ia chinois qui">
-          <div class="card-header">
-            <a href="https://dev.to/aiapikey/i-made-a-free-github-copilot-alternative-using-chinese-ai-models-3o9p" target="_blank" rel="noopener" class="card-title">J'ai créé une alternative gratuite à GitHub Copilot en utilisant des modèles d'IA chinois</a>
-          </div>
-          <p class='card-summary'><p>GitHub Copilot coûte 19 $/mois. L'API d'OpenAI nécessite une carte de crédit. Et si vous êtes en dehors des États-Unis, s'installer avec l'un ou l'autre peut être un véritable casse-tête.</p>
-
-<p>J'ai donc créé <strong>NovAI Coder</strong> : une application Windows gratuite et open source qui vous offre une assistance au codage de l'IA via 7 modèles d'IA chinois qui</p>
-          <div class="card-meta">
-            <span class="source">Dev.to — AI</span>
-            <span class='art-date'>Wed, 11 Ma</span>
-            <a href="https://dev.to/aiapikey/i-made-a-free-github-copilot-alternative-using-chinese-ai-models-3o9p" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+            <span class="source">Tom's Hardware</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://www.tomshardware.com/tech-industry/artificial-intelligence/nvidia-reportedly-building-its-own-ai-agent-to-compete-with-openclaw-report-claims-nemoclaw-will-supposedly-be-open-source-and-designed-for-enterprise-use" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
         <div class="card" data-date="2026-03-10" data-text="demandez à hn : quelle est votre configuration actuelle de codage agentic et/ou vibe ? ">
@@ -338,17 +327,6 @@ main{max-width:960px;margin:0 auto;padding:24px 16px}
             <a href="https://arstechnica.com/ai/2026/02/attackers-prompted-gemini-over-100000-times-while-trying-to-clone-it-google-says/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
-        <div class="card" data-date="Wed, 11 Fe" data-text="un chercheur d'openai démissionne à cause des publicités chatgpt et met en garde contre le chemin "facebook" zoë hitzig a démissionné le jour même où openai a commencé à tester les publicités dans son chatbot.">
-          <div class="card-header">
-            <a href="https://arstechnica.com/information-technology/2026/02/openai-researcher-quits-over-fears-that-chatgpt-ads-could-manipulate-users/" target="_blank" rel="noopener" class="card-title">Un chercheur d'OpenAI démissionne à cause des publicités ChatGPT et met en garde contre le chemin "Facebook"</a>
-          </div>
-          <p class='card-summary'>Zoë Hitzig a démissionné le jour même où OpenAI a commencé à tester les publicités dans son chatbot.</p>
-          <div class="card-meta">
-            <span class="source">Ars Technica — AI</span>
-            <span class='art-date'>Wed, 11 Fe</span>
-            <a href="https://arstechnica.com/information-technology/2026/02/openai-researcher-quits-over-fears-that-chatgpt-ads-could-manipulate-users/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
-          </div>
-        </div>
         <div class="card" data-date="2026-03-09" data-text="peut-être pas une technologie ennuyeuse après tout <p>une préoccupation récurrente que j'ai constatée concernant les llm pour la programmation est qu'ils pousseront nos choix technologiques vers les outils les mieux représentés dans leurs données de formation, ce qui rendra plus difficile pour de nouveaux et meilleurs outils de se démarquer.</p>
 <p>c'était certainement le cas il y a quelques années">
           <div class="card-header">
@@ -375,6 +353,117 @@ Anthropic a annoncé six mois de Claude Max gratuit pour les responsables de pro
             <a href="https://simonwillison.net/2026/Mar/7/codex-for-open-source/#atom-everything" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
+        <div class="card" data-date="Wed, 11 Ma" data-text="gestion du contexte dans claude code : gardez l'ia précise au fil des sessions <h1>
+  
+  
+  gestion du contexte dans claude code : gardez l'ia précise au fil des sessions
+</h1>
+
+<h2>
+  
+  
+  pourquoi la gestion du contexte est importante
+</h2>
+
+<p>les longues sessions provoquent :</p>
+
+<ul>
+<li>augmentation des coûts des jetons</li>
+<li>anciennes informations dégradant la précision</li>
+<li>perte de contexte après /clear</li>
+</ul>
+
+<h2>
+  
+  
+  thr">
+          <div class="card-header">
+            <a href="https://dev.to/myougatheaxo/context-management-in-claude-code-keep-ai-accurate-across-sessions-4o7i" target="_blank" rel="noopener" class="card-title">Gestion du contexte dans Claude Code : gardez l'IA précise au fil des sessions</a>
+          </div>
+          <p class='card-summary'><h1>
+  
+  
+  Gestion du contexte dans Claude Code : gardez l'IA précise au fil des sessions
+</h1>
+
+<h2>
+  
+  
+  Pourquoi la gestion du contexte est importante
+</h2>
+
+<p>Les longues sessions provoquent :</p>
+
+<ul>
+<li>Augmentation des coûts des jetons</li>
+<li>Anciennes informations dégradant la précision</li>
+<li>Perte de contexte après /clear</li>
+</ul>
+
+<h2>
+  
+  
+  Thr</p>
+          <div class="card-meta">
+            <span class="source">Dev.to — AI</span>
+            <span class='art-date'>Wed, 11 Ma</span>
+            <a href="https://dev.to/myougatheaxo/context-management-in-claude-code-keep-ai-accurate-across-sessions-4o7i" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Wed, 11 Ma" data-text="mode plan de code claude : réviser avant d'exécuter des modifications importantes <h1>
+  
+  
+  mode plan de code claude : réviser avant d'exécuter des modifications importantes
+</h1>
+
+<h2>
+  
+  
+  qu’est-ce que le mode plan ?
+</h2>
+
+<p>le mode plan permet à claude <strong>d'afficher un plan avant d'apporter des modifications réelles</strong>.</p>
+
+<p>avant un changement important, vous voyez « quoi, dans quel ordre » et pouvez approuver ou rejeter.</">
+          <div class="card-header">
+            <a href="https://dev.to/myougatheaxo/claude-code-plan-mode-review-before-you-execute-large-changes-3n9b" target="_blank" rel="noopener" class="card-title">Mode Plan de code Claude : Réviser avant d'exécuter des modifications importantes</a>
+          </div>
+          <p class='card-summary'><h1>
+  
+  
+  Mode Plan de code Claude : Réviser avant d'exécuter des modifications importantes
+</h1>
+
+<h2>
+  
+  
+  Qu’est-ce que le mode Plan ?
+</h2>
+
+<p>Le mode Plan permet à Claude <strong>d'afficher un plan avant d'apporter des modifications réelles</strong>.</p>
+
+<p>Avant un changement important, vous voyez « quoi, dans quel ordre » et pouvez approuver ou rejeter.</</p>
+          <div class="card-meta">
+            <span class="source">Dev.to — AI</span>
+            <span class='art-date'>Wed, 11 Ma</span>
+            <a href="https://dev.to/myougatheaxo/claude-code-plan-mode-review-before-you-execute-large-changes-3n9b" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Wed, 11 Ma" data-text="j'ai construit la mauvaise chose trois fois avant d'apprendre le triangle d'extensibilité de claude code <p>vous regardez une session claude code et vous en avez besoin pour faire quelque chose qu'il ne fait pas de manière standard. appliquez peut-être les conventions sql de votre équipe. peut-être interroger une base de données de production. peut-être exécuter des révisions de code sur haiku au lieu de graver des jetons opus sur des vérifications passe-partout.</p>
+
+<p>trois options. compétence">
+          <div class="card-header">
+            <a href="https://dev.to/ejb503/i-built-the-wrong-thing-three-times-before-learning-claude-codes-extensibility-triangle-24i2" target="_blank" rel="noopener" class="card-title">J'ai construit la mauvaise chose trois fois avant d'apprendre le triangle d'extensibilité de Claude Code</a>
+          </div>
+          <p class='card-summary'><p>Vous regardez une session Claude Code et vous en avez besoin pour faire quelque chose qu'il ne fait pas de manière standard. Appliquez peut-être les conventions SQL de votre équipe. Peut-être interroger une base de données de production. Peut-être exécuter des révisions de code sur Haiku au lieu de graver des jetons Opus sur des vérifications passe-partout.</p>
+
+<p>Trois options. Compétence</p>
+          <div class="card-meta">
+            <span class="source">Dev.to — AI</span>
+            <span class='art-date'>Wed, 11 Ma</span>
+            <a href="https://dev.to/ejb503/i-built-the-wrong-thing-three-times-before-learning-claude-codes-extensibility-triangle-24i2" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
         <div class="card" data-date="2026-03-09" data-text="donner aux llm locaux une mémoire institutionnelle en lecture seule avant l'exécution de la tâche ">
           <div class="card-header">
             <a href="https://news.ycombinator.com/item?id=47309028" target="_blank" rel="noopener" class="card-title">Donner aux LLM locaux une mémoire institutionnelle en lecture seule avant l'exécution de la tâche</a>
@@ -386,10 +475,93 @@ Anthropic a annoncé six mois de Claude Max gratuit pour les responsables de pro
             <a href="https://news.ycombinator.com/item?id=47309028" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
+        <div class="card" data-date="2025-11-30" data-text="dites à hn : chatgpt a un chiffre d'affaires de 13 milliards mais ne peut pas créer un site web fonctionnel ">
+          <div class="card-header">
+            <a href="https://news.ycombinator.com/item?id=46098829" target="_blank" rel="noopener" class="card-title">Dites à HN : ChatGPT a un chiffre d'affaires de 13 milliards mais ne peut pas créer un site Web fonctionnel</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2025-11-30</span>
+            <a href="https://news.ycombinator.com/item?id=46098829" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2025-08-19" data-text="afficher hn : lemonade : exécutez des llm localement avec l'accélération gpu et npu ">
+          <div class="card-header">
+            <a href="https://github.com/lemonade-sdk/lemonade" target="_blank" rel="noopener" class="card-title">Afficher HN : Lemonade : exécutez des LLM localement avec l'accélération GPU et NPU</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2025-08-19</span>
+            <a href="https://github.com/lemonade-sdk/lemonade" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2025-08-07" data-text="exécutez les modèles gpt-oss d'openai sur les processeurs amd ryzen ai et les cartes graphiques radeon ">
+          <div class="card-header">
+            <a href="https://www.amd.com/en/blogs/2025/how-to-run-openai-gpt-oss-20b-120b-models-on-amd-ryzen-ai-radeon.html" target="_blank" rel="noopener" class="card-title">Exécutez les modèles GPT-OSS d'OpenAI sur les processeurs AMD Ryzen AI et les cartes graphiques Radeon</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2025-08-07</span>
+            <a href="https://www.amd.com/en/blogs/2025/how-to-run-openai-gpt-oss-20b-120b-models-on-amd-ryzen-ai-radeon.html" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+      </section>
+      <section id="Entreprise-et-Industrie" class="theme-section">
+        <h2 class="theme-title">Entreprise et Industrie</h2>
+        
+        <div class="card" data-date="Thu, 05 Ma" data-text="trump demande aux entreprises de centres de données de s'engager à payer pour la production d'électricité en l’absence d’application de la loi et en raison d’une situation économique douteuse, cela ne fera peut-être aucune différence.">
+          <div class="card-header">
+            <a href="https://arstechnica.com/tech-policy/2026/03/leading-ai-datacenter-companies-sign-pledge-to-buy-their-own-power/" target="_blank" rel="noopener" class="card-title">Trump demande aux entreprises de centres de données de s'engager à payer pour la production d'électricité</a>
+          </div>
+          <p class='card-summary'>En l’absence d’application de la loi et en raison d’une situation économique douteuse, cela ne fera peut-être aucune différence.</p>
+          <div class="card-meta">
+            <span class="source">Ars Technica — AI</span>
+            <span class='art-date'>Thu, 05 Ma</span>
+            <a href="https://arstechnica.com/tech-policy/2026/03/leading-ai-datacenter-companies-sign-pledge-to-buy-their-own-power/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-03-09" data-text="plans de requête de production sans données de production <p><strong><a href="https://boringsql.com/posts/portable-stats/">plans de requête de production sans données de production</a></strong></p>
+radim marek décrit le nouveau <a href="https://www.postgresql.org/docs/current/functions-admin.html#functions-admin-statsmod"><code>pg_restore_relation_stats()</code> et">
+          <div class="card-header">
+            <a href="https://simonwillison.net/2026/Mar/9/production-query-plans-without-production-data/#atom-everything" target="_blank" rel="noopener" class="card-title">Plans de requête de production sans données de production</a>
+          </div>
+          <p class='card-summary'><p><strong><a href="https://boringsql.com/posts/portable-stats/">Plans de requête de production sans données de production</a></strong></p>
+Radim Marek décrit le nouveau <a href="https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADMIN-STATSMOD"><code>pg_restore_relation_stats()</code> et</p>
+          <div class="card-meta">
+            <span class="source">Simon Willison</span>
+            <span class='art-date'>2026-03-09</span>
+            <a href="https://simonwillison.net/2026/Mar/9/production-query-plans-without-production-data/#atom-everything" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="nvidia virtualise le développement de jeux avec le serveur rtx pro les équipes de développement de jeux travaillent dans des mondes plus vastes, avec des pipelines plus complexes et des équipes plus distribuées que jamais. dans le même temps, de nombreux studios s’appuient encore sur du matériel gpu fixe et lié au bureau pour les travaux de production critiques. lors de la game developers conference (gdc) cette semaine à san francisco, nvidia i">
+          <div class="card-header">
+            <a href="https://blogs.nvidia.com/blog/gdc-2026-virtual-game-development/" target="_blank" rel="noopener" class="card-title">NVIDIA virtualise le développement de jeux avec le serveur RTX PRO</a>
+          </div>
+          <p class='card-summary'>Les équipes de développement de jeux travaillent dans des mondes plus vastes, avec des pipelines plus complexes et des équipes plus distribuées que jamais. Dans le même temps, de nombreux studios s’appuient encore sur du matériel GPU fixe et lié au bureau pour les travaux de production critiques. Lors de la Game Developers Conference (GDC) cette semaine à San Francisco, NVIDIA i</p>
+          <div class="card-meta">
+            <span class="source">NVIDIA Blog</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://blogs.nvidia.com/blog/gdc-2026-virtual-game-development/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
       </section>
       <section id="Autres" class="theme-section">
         <h2 class="theme-title">Autres</h2>
         
+        <div class="card" data-date="2026-03-10" data-text="comment la spirale du conflit iranien pourrait affecter les centres de données et les coûts d’électricité peu de temps après que l’administration trump a lancé sa guerre contre l’iran, j’ai appelé reed blakemore, directeur de la recherche et des programmes à l’atlantic council global energy center, pour parler des conséquences. alors que les prix du pétrole et du gaz étaient déjà en hausse, on espérait encore davantage que l'impact">
+          <div class="card-header">
+            <a href="https://www.theverge.com/report/892661/iran-war-oil-gas-prices-data-center-electricity" target="_blank" rel="noopener" class="card-title">Comment la spirale du conflit iranien pourrait affecter les centres de données et les coûts d’électricité</a>
+          </div>
+          <p class='card-summary'>Peu de temps après que l’administration Trump a lancé sa guerre contre l’Iran, j’ai appelé Reed Blakemore, directeur de la recherche et des programmes à l’Atlantic Council Global Energy Center, pour parler des conséquences. Alors que les prix du pétrole et du gaz étaient déjà en hausse, on espérait encore davantage que l'impact</p>
+          <div class="card-meta">
+            <span class="source">The Verge — AI</span>
+            <span class='art-date'>2026-03-10</span>
+            <a href="https://www.theverge.com/report/892661/iran-war-oil-gas-prices-data-center-electricity" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
         <div class="card" data-date="Thu, 22 Ja" data-text="railway obtient 100 millions de dollars pour défier aws avec une infrastructure cloud native d'ia <p><a href="https://railway.com/">railway</a>, une plate-forme cloud basée à san francisco qui a discrètement rassemblé deux millions de développeurs sans dépenser un dollar en marketing, a annoncé jeudi avoir levé 100 millions de dollars lors d'un cycle de financement de série b, alors que la demande croissante d'applications d'intelligence artificielle">
           <div class="card-header">
             <a href="https://venturebeat.com/infrastructure/railway-secures-usd100-million-to-challenge-aws-with-ai-native-cloud" target="_blank" rel="noopener" class="card-title">Railway obtient 100 millions de dollars pour défier AWS avec une infrastructure cloud native d'IA</a>
@@ -425,30 +597,176 @@ Cet article de Bruce Schneier et Nathan E. Sanders est la couverture la plus ré
             <a href="https://simonwillison.net/2026/Mar/6/anthropic-and-the-pentagon/#atom-everything" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
-        <div class="card" data-date="Wed, 11 Ma" data-text="5 idées de robots telegram qui rapportent réellement de l'argent (j'en ai construit quelques-unes moi-même) <p>de nos jours, tout le monde, y compris leur grand-mère, construit des robots telegram. mais la plupart d'entre eux sont des jouets glorifiés qui ne rapportent jamais un centime.</p>
-
-<p>j'ai créé et vendu des robots telegram personnalisés comme revenu secondaire au cours de l'année écoulée. voici 5 idées qui s'appuient sur de <strong>modèles de revenus réels</strong> :">
+        <div class="card" data-date="Thu, 05 Ma" data-text="ia dans plusieurs gpu : zero et fsdp <p>découvrez comment fonctionne zero redundancy optimizer, comment l'implémenter à partir de zéro et comment l'utiliser dans pytorch</p>
+<p>le post <a href="https://towardsdatascience.com/ai-in-multiple-gpus-zero-fsdp/">l'ia dans plusieurs gpu : zero &amp; fsdp</a> est apparu en premier sur <a href="https://towardsdatascience.com">tow">
           <div class="card-header">
-            <a href="https://dev.to/samhartley_dev/5-telegram-bot-ideas-that-actually-make-money-built-a-few-of-these-myself-46eh" target="_blank" rel="noopener" class="card-title">5 idées de robots Telegram qui rapportent réellement de l'argent (j'en ai construit quelques-unes moi-même)</a>
+            <a href="https://towardsdatascience.com/ai-in-multiple-gpus-zero-fsdp/" target="_blank" rel="noopener" class="card-title">IA dans plusieurs GPU : ZeRO et FSDP</a>
           </div>
-          <p class='card-summary'><p>De nos jours, tout le monde, y compris leur grand-mère, construit des robots Telegram. Mais la plupart d'entre eux sont des jouets glorifiés qui ne rapportent jamais un centime.</p>
-
-<p>J'ai créé et vendu des robots Telegram personnalisés comme revenu secondaire au cours de l'année écoulée. Voici 5 idées qui s'appuient sur de <strong>modèles de revenus réels</strong> :</p>
+          <p class='card-summary'><p>Découvrez comment fonctionne Zero Redundancy Optimizer, comment l'implémenter à partir de zéro et comment l'utiliser dans PyTorch</p>
+<p>Le post <a href="https://towardsdatascience.com/ai-in-multiple-gpus-zero-fsdp/">L'IA dans plusieurs GPU : ZeRO &amp; FSDP</a> est apparu en premier sur <a href="https://towardsdatascience.com">Tow</p>
           <div class="card-meta">
-            <span class="source">Dev.to — AI</span>
-            <span class='art-date'>Wed, 11 Ma</span>
-            <a href="https://dev.to/samhartley_dev/5-telegram-bot-ideas-that-actually-make-money-built-a-few-of-these-myself-46eh" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+            <span class="source">Towards Data Science</span>
+            <span class='art-date'>Thu, 05 Ma</span>
+            <a href="https://towardsdatascience.com/ai-in-multiple-gpus-zero-fsdp/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
-        <div class="card" data-date="Wed, 11 Ma" data-text="au-delà de shopee business insights : comment les données externes vous donnent un avantage <p>shopee business insights est un <a href="https://easydata.io.vn/blog/shopee-analytics-tools-for-2025/?utm_source=dev.to&amp;utm_medium=easydata&amp;utm_campaign=shopee-analytics-tools">outil d'analyse shopee</a> qui aide les vendeurs à suivre les performances internes. cependant, puisque cet outil">
+        <div class="card" data-date="Wed, 11 Ma" data-text="performances spfx et couche de confiance de sharepoint <h1>
+  
+  
+  performances spfx et couche de confiance de sharepoint
+</h1>
+
+<p><strong>sharepoint est la surface visible.</strong></p>
+
+<p>ainsi, lorsqu'un intranet semble <strong>« lent »,</strong> la première chose que les utilisateurs nomment est <strong>sharepoint</strong> – pas le composant webpart, ni le bundle, ni le graphique d'appels.<b">
           <div class="card-header">
-            <a href="https://dev.to/easydata123/beyond-shopee-business-insights-how-external-data-gives-you-an-edge-2j2n" target="_blank" rel="noopener" class="card-title">Au-delà de Shopee Business Insights : comment les données externes vous donnent un avantage</a>
+            <a href="https://dev.to/aakash_rahsi/spfx-performance-and-the-trust-layer-of-sharepoint-4hpn" target="_blank" rel="noopener" class="card-title">Performances SPFx et couche de confiance de SharePoint</a>
           </div>
-          <p class='card-summary'><p>Shopee Business Insights est un <a href="https://easydata.io.vn/blog/shopee-analytics-tools-for-2025/?utm_source=dev.to&amp;utm_medium=easydata&amp;utm_campaign=shopee-analytics-tools">outil d'analyse Shopee</a> qui aide les vendeurs à suivre les performances internes. Cependant, puisque cet outil</p>
+          <p class='card-summary'><h1>
+  
+  
+  Performances SPFx et couche de confiance de SharePoint
+</h1>
+
+<p><strong>SharePoint est la surface visible.</strong></p>
+
+<p>Ainsi, lorsqu'un intranet semble <strong>« lent »,</strong> la première chose que les utilisateurs nomment est <strong>SharePoint</strong> – pas le composant WebPart, ni le bundle, ni le graphique d'appels.<b</p>
           <div class="card-meta">
             <span class="source">Dev.to — AI</span>
             <span class='art-date'>Wed, 11 Ma</span>
-            <a href="https://dev.to/easydata123/beyond-shopee-business-insights-how-external-data-gives-you-an-edge-2j2n" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+            <a href="https://dev.to/aakash_rahsi/spfx-performance-and-the-trust-layer-of-sharepoint-4hpn" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="le teaser du processeur intel nova lake répertorie la prise en charge officielle de la ram ddr5-8000 rapide – le système d'alimentation amélioré du mini-pc b960 signale les demandes d'énergie plus élevées de nova lake ecs présente le mini-pc liva p300 remanié pour les prochains processeurs intel nova lake, révélant quelques fonctionnalités intéressantes en cours de route.">
+          <div class="card-header">
+            <a href="https://www.tomshardware.com/pc-components/cpus/intel-nova-lake-cpu-teaser-lists-official-support-for-speedy-ddr5-8000-ram-b960-mini-pcs-upgraded-power-system-signals-nova-lakes-higher-power-demands" target="_blank" rel="noopener" class="card-title">Le teaser du processeur Intel Nova Lake répertorie la prise en charge officielle de la RAM DDR5-8000 rapide – le système d'alimentation amélioré du mini-PC B960 signale les demandes d'énergie plus élevées de Nova Lake</a>
+          </div>
+          <p class='card-summary'>ECS présente le mini-PC Liva P300 remanié pour les prochains processeurs Intel Nova Lake, révélant quelques fonctionnalités intéressantes en cours de route.</p>
+          <div class="card-meta">
+            <span class="source">Tom's Hardware</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://www.tomshardware.com/pc-components/cpus/intel-nova-lake-cpu-teaser-lists-official-support-for-speedy-ddr5-8000-ram-b960-mini-pcs-upgraded-power-system-signals-nova-lakes-higher-power-demands" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="la saga d'expansion d'oracle et d'openai à abilene détaillée : l'expansion de 600 mw est abandonnée, alors qu'un accord plus important de 4,5 gw reste en bonne voie oracle et openai ont abandonné leur projet d'étendre leur campus phare stargate à abilene, au texas, au-delà de leur engagement de construction de 1,2 gigawatt plus tôt ce mois-ci.">
+          <div class="card-header">
+            <a href="https://www.tomshardware.com/tech-industry/oracle-and-openai-scrap-planned-600mw-abilene-expansion" target="_blank" rel="noopener" class="card-title">La saga d'expansion d'Oracle et d'OpenAI à Abilene détaillée : l'expansion de 600 MW est abandonnée, alors qu'un accord plus important de 4,5 GW reste en bonne voie</a>
+          </div>
+          <p class='card-summary'>Oracle et OpenAI ont abandonné leur projet d'étendre leur campus phare Stargate à Abilene, au Texas, au-delà de leur engagement de construction de 1,2 gigawatt plus tôt ce mois-ci.</p>
+          <div class="card-meta">
+            <span class="source">Tom's Hardware</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://www.tomshardware.com/tech-industry/oracle-and-openai-scrap-planned-600mw-abilene-expansion" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="dynamic mfg arrive sur les gpu rtx série 50 pour pousser les taux de rafraîchissement du moniteur au maximum – un mode plus flexible avec des multiplicateurs 5x et 6x arrive le 31 mars dynamic multi frame generation, annoncé au ces, arrivera le 31 mars, avec les modes 5x et 6x étendus.">
+          <div class="card-header">
+            <a href="https://www.tomshardware.com/pc-components/gpus/dynamic-mfg-comes-to-rtx-50-series-gpus-to-push-monitor-refresh-rates-to-the-max-more-flexible-mode-with-5x-and-6x-multipliers-arrives-march-31" target="_blank" rel="noopener" class="card-title">Dynamic MFG arrive sur les GPU RTX série 50 pour pousser les taux de rafraîchissement du moniteur au maximum – un mode plus flexible avec des multiplicateurs 5x et 6x arrive le 31 mars</a>
+          </div>
+          <p class='card-summary'>Dynamic Multi Frame Generation, annoncé au CES, arrivera le 31 mars, avec les modes 5X et 6X étendus.</p>
+          <div class="card-meta">
+            <span class="source">Tom's Hardware</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://www.tomshardware.com/pc-components/gpus/dynamic-mfg-comes-to-rtx-50-series-gpus-to-push-monitor-refresh-rates-to-the-max-more-flexible-mode-with-5x-and-6x-multipliers-arrives-march-31" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="obtenez 32 go de corsair vengeance ddr5 pour 163 $ en association avec le nouveau 9850x3d d'amd et une carte mère x870e-e – économisez 236 $ sur le cœur de votre nouveau pc am5 ce pack newegg vous offre de la ram pour seulement 163 $ lorsqu'il est fourni avec un nouveau processeur 9850x3d et une carte mère asus rog strix x870e-e.">
+          <div class="card-header">
+            <a href="https://www.tomshardware.com/pc-components/get-32gb-of-corsair-vengeance-ddr5-for-usd163-when-bundled-with-amds-new-9850x3d-and-an-x870e-e-motherboard-save-usd236-on-the-heart-of-your-new-am5-pc" target="_blank" rel="noopener" class="card-title">Obtenez 32 Go de Corsair Vengeance DDR5 pour 163 $ en association avec le nouveau 9850X3D d'AMD et une carte mère X870E-E – économisez 236 $ sur le cœur de votre nouveau PC AM5</a>
+          </div>
+          <p class='card-summary'>Ce pack Newegg vous offre de la RAM pour seulement 163 $ lorsqu'il est fourni avec un nouveau processeur 9850X3D et une carte mère Asus ROG Strix X870E-E.</p>
+          <div class="card-meta">
+            <span class="source">Tom's Hardware</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://www.tomshardware.com/pc-components/get-32gb-of-corsair-vengeance-ddr5-for-usd163-when-bundled-with-amds-new-9850x3d-and-an-x870e-e-motherboard-save-usd236-on-the-heart-of-your-new-am5-pc" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-03-10" data-text="le dlss 4.5 de nvidia avec 6x frame generation sera déployé fin mars le dlss 4.5 de nvidia avec génération multi-images 6x sera disponible à partir du 31 mars pour les utilisateurs équipés de gpu rtx série 50, a annoncé la société mardi. avec 6x multi frame generation, nvidia affirme que dlss 4.5 peut générer « cinq images supplémentaires pour chaque image rendue nativement, pour un m ».">
+          <div class="card-header">
+            <a href="https://www.theverge.com/tech/892111/nvidia-dlss-4-5-6x-frame-generation-dynamic-frame-generation" target="_blank" rel="noopener" class="card-title">Le DLSS 4.5 de Nvidia avec 6x Frame Generation sera déployé fin mars</a>
+          </div>
+          <p class='card-summary'>Le DLSS 4.5 de Nvidia avec génération multi-images 6x sera disponible à partir du 31 mars pour les utilisateurs équipés de GPU RTX série 50, a annoncé la société mardi. Avec 6x Multi Frame Generation, Nvidia affirme que DLSS 4.5 peut générer « cinq images supplémentaires pour chaque image rendue nativement, pour un m ».</p>
+          <div class="card-meta">
+            <span class="source">The Verge — Tech</span>
+            <span class='art-date'>2026-03-10</span>
+            <a href="https://www.theverge.com/tech/892111/nvidia-dlss-4-5-6x-frame-generation-dynamic-frame-generation" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="alors que les modèles ouverts suscitent le boom de l'ia, nvidia jetson lui donne vie à la périphérie la mini-pelle cat 306 cr pèse un peu moins de huit tonnes et tient dans un conteneur d'expédition standard. c’est la machine qu’un entrepreneur loue lorsque le chantier est exigu : une tranchée électrique près d’une fondation, un sous-sol creusé dans un quartier dense. la cabine a à peu près la taille d’une cabine téléphonique. l'opéra">
+          <div class="card-header">
+            <a href="https://blogs.nvidia.com/blog/jetson-generative-ai-edge-oss/" target="_blank" rel="noopener" class="card-title">Alors que les modèles ouverts suscitent le boom de l'IA, NVIDIA Jetson lui donne vie à la périphérie</a>
+          </div>
+          <p class='card-summary'>La mini-pelle Cat 306 CR pèse un peu moins de huit tonnes et tient dans un conteneur d'expédition standard. C’est la machine qu’un entrepreneur loue lorsque le chantier est exigu : une tranchée électrique près d’une fondation, un sous-sol creusé dans un quartier dense. La cabine a à peu près la taille d’une cabine téléphonique. L'opéra</p>
+          <div class="card-meta">
+            <span class="source">NVIDIA Blog</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://blogs.nvidia.com/blog/jetson-generative-ai-edge-oss/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="nvidia et comfyui rationalisent la génération locale de vidéos ia pour les développeurs et créateurs de jeux à la gdc les développeurs de jeux et les artistes créent des mondes cinématographiques et des personnages emblématiques, plaçant ainsi la barre plus haut en matière d'expériences immersives sur les pc nvidia rtx ai.  lors de la game developers conference (gdc) à san francisco cette semaine, nvidia a annoncé une suite de mises à jour qui rationalisent la génération vidéo ai pour le concept d">
+          <div class="card-header">
+            <a href="https://blogs.nvidia.com/blog/rtx-ai-garage-flux-ltx-video-comfyui-gdc/" target="_blank" rel="noopener" class="card-title">NVIDIA et ComfyUI rationalisent la génération locale de vidéos IA pour les développeurs et créateurs de jeux à la GDC</a>
+          </div>
+          <p class='card-summary'>Les développeurs de jeux et les artistes créent des mondes cinématographiques et des personnages emblématiques, plaçant ainsi la barre plus haut en matière d'expériences immersives sur les PC NVIDIA RTX AI.  Lors de la Game Developers Conference (GDC) à San Francisco cette semaine, NVIDIA a annoncé une suite de mises à jour qui rationalisent la génération vidéo AI pour le concept d</p>
+          <div class="card-meta">
+            <span class="source">NVIDIA Blog</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://blogs.nvidia.com/blog/rtx-ai-garage-flux-ltx-video-comfyui-gdc/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Tue, 10 Ma" data-text="nvidia et thinking machines lab annoncent un partenariat stratégique à long terme à l'échelle du gigawatt nvidia et thinking machines lab ont annoncé aujourd'hui un partenariat stratégique pluriannuel visant à déployer au moins un gigawatt de systèmes nvidia vera rubin de nouvelle génération pour prendre en charge la formation des modèles de pointe de thinking machines et les plates-formes fournissant une ia personnalisable à grande échelle. déploiement sur nvidia vera rubin">
+          <div class="card-header">
+            <a href="https://blogs.nvidia.com/blog/nvidia-thinking-machines-lab/" target="_blank" rel="noopener" class="card-title">NVIDIA et Thinking Machines Lab annoncent un partenariat stratégique à long terme à l'échelle du gigawatt</a>
+          </div>
+          <p class='card-summary'>NVIDIA et Thinking Machines Lab ont annoncé aujourd'hui un partenariat stratégique pluriannuel visant à déployer au moins un gigawatt de systèmes NVIDIA Vera Rubin de nouvelle génération pour prendre en charge la formation des modèles de pointe de Thinking Machines et les plates-formes fournissant une IA personnalisable à grande échelle. Déploiement sur NVIDIA Vera Rubin</p>
+          <div class="card-meta">
+            <span class="source">NVIDIA Blog</span>
+            <span class='art-date'>Tue, 10 Ma</span>
+            <a href="https://blogs.nvidia.com/blog/nvidia-thinking-machines-lab/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="Mon, 09 Ma" data-text="abb robotics fait appel à nvidia omniverse pour fournir une ia physique de qualité industrielle à grande échelle abb robotics et nvidia ont annoncé aujourd'hui un partenariat révolutionnaire qui amène l'ia physique de qualité industrielle dans les usines.  en intégrant les bibliothèques nvidia omniverse directement dans sa suite de programmation et de simulation robotstudio, abb robotics fournira désormais des simulations physiquement précises.">
+          <div class="card-header">
+            <a href="https://blogs.nvidia.com/blog/abb-robotics-omniverse/" target="_blank" rel="noopener" class="card-title">ABB Robotics fait appel à NVIDIA Omniverse pour fournir une IA physique de qualité industrielle à grande échelle</a>
+          </div>
+          <p class='card-summary'>ABB Robotics et NVIDIA ont annoncé aujourd'hui un partenariat révolutionnaire qui amène l'IA physique de qualité industrielle dans les usines.  En intégrant les bibliothèques NVIDIA Omniverse directement dans sa suite de programmation et de simulation RobotStudio, ABB Robotics fournira désormais des simulations physiquement précises.</p>
+          <div class="card-meta">
+            <span class="source">NVIDIA Blog</span>
+            <span class='art-date'>Mon, 09 Ma</span>
+            <a href="https://blogs.nvidia.com/blog/abb-robotics-omniverse/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2024-03-19" data-text="parlez comme un graphique : codage de graphiques pour de grands modèles de langage ">
+          <div class="card-header">
+            <a href="http://blog.research.google/feeds/6090481872694489715/comments/default" target="_blank" rel="noopener" class="card-title">Parlez comme un graphique : codage de graphiques pour de grands modèles de langage</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Google AI Blog</span>
+            <span class='art-date'>2024-03-19</span>
+            <a href="http://blog.research.google/feeds/6090481872694489715/comments/default" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2024-03-07" data-text="apprentissage social : apprentissage collaboratif avec de grands modèles de langage ">
+          <div class="card-header">
+            <a href="http://blog.research.google/feeds/1765359719068432739/comments/default" target="_blank" rel="noopener" class="card-title">Apprentissage social : apprentissage collaboratif avec de grands modèles de langage</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Google AI Blog</span>
+            <span class='art-date'>2024-03-07</span>
+            <a href="http://blog.research.google/feeds/1765359719068432739/comments/default" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2024-01-26" data-text="optimisations des performances de multiplication matricielle à entrées mixtes ">
+          <div class="card-header">
+            <a href="http://blog.research.google/feeds/5144906729109253495/comments/default" target="_blank" rel="noopener" class="card-title">Optimisations des performances de multiplication matricielle à entrées mixtes</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Google AI Blog</span>
+            <span class='art-date'>2024-01-26</span>
+            <a href="http://blog.research.google/feeds/5144906729109253495/comments/default" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
         <div class="card" data-date="2026-03-10" data-text="platon et le philosophe pragmatique william james débattent du codage vibratoire ">
@@ -482,6 +800,116 @@ Cet article de Bruce Schneier et Nathan E. Sanders est la couverture la plus ré
             <span class="source">Hacker News</span>
             <span class='art-date'>2026-03-10</span>
             <a href="https://news.ycombinator.com/item?id=47318148" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-03-11" data-text="à quel niveau d’ingénierie contextuelle approfondie les résultats de l’ia deviennent-ils fabriqués par l’homme ? ">
+          <div class="card-header">
+            <a href="https://news.ycombinator.com/item?id=47330309" target="_blank" rel="noopener" class="card-title">À quel niveau d’ingénierie contextuelle approfondie les résultats de l’IA deviennent-ils fabriqués par l’homme ?</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2026-03-11</span>
+            <a href="https://news.ycombinator.com/item?id=47330309" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-03-09" data-text="show hn : pile d'ia locale (docker, ollama) qui vous permet de créer des applications sans python ">
+          <div class="card-header">
+            <a href="https://github.com/dashjoin/docker-compose" target="_blank" rel="noopener" class="card-title">Show HN : pile d'IA locale (Docker, Ollama) qui vous permet de créer des applications sans Python</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2026-03-09</span>
+            <a href="https://github.com/dashjoin/docker-compose" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-02-24" data-text="afficher hn : waveguard – détection d'anomalies par simulation physique des vagues (gpu, mcp) ">
+          <div class="card-header">
+            <a href="https://github.com/gpartin/WaveGuardClient" target="_blank" rel="noopener" class="card-title">Afficher HN : WaveGuard – Détection d'anomalies par simulation physique des vagues (GPU, MCP)</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2026-02-24</span>
+            <a href="https://github.com/gpartin/WaveGuardClient" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-02-24" data-text="meta utilisera 6 gw de gpu amd, quelques jours après l'extension de l'accord sur les puces nvidia ai ">
+          <div class="card-header">
+            <a href="https://www.cnbc.com/2026/02/24/meta-to-use-6gw-of-amd-gpus-days-after-expanded-nvidia-ai-chip-deal.html" target="_blank" rel="noopener" class="card-title">Meta utilisera 6 GW de GPU AMD, quelques jours après l'extension de l'accord sur les puces Nvidia AI</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2026-02-24</span>
+            <a href="https://www.cnbc.com/2026/02/24/meta-to-use-6gw-of-amd-gpus-days-after-expanded-nvidia-ai-chip-deal.html" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-01-24" data-text="nvidia et linux, une question ">
+          <div class="card-header">
+            <a href="https://news.ycombinator.com/item?id=46740779" target="_blank" rel="noopener" class="card-title">Nvidia et Linux, une question</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2026-01-24</span>
+            <a href="https://news.ycombinator.com/item?id=46740779" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-03-09" data-text="amd vp utilise l'ia pour créer le pilote utilisateur radeon linux en python ">
+          <div class="card-header">
+            <a href="https://www.tomshardware.com/pc-components/gpu-drivers/amd-vp-uses-ai-to-create-radeon-linux-userland-driver-in-python-senior-ai-engineer-says-he-didnt-open-the-editor-once" target="_blank" rel="noopener" class="card-title">AMD VP utilise l'IA pour créer le pilote utilisateur Radeon Linux en Python</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2026-03-09</span>
+            <a href="https://www.tomshardware.com/pc-components/gpu-drivers/amd-vp-uses-ai-to-create-radeon-linux-userland-driver-in-python-senior-ai-engineer-says-he-didnt-open-the-editor-once" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2025-11-03" data-text="amd radeon ai pro r9700 offre des performances/valeurs graphiques de station de travail compétitives ">
+          <div class="card-header">
+            <a href="https://www.phoronix.com/review/radeon-ai-pro-r9700-graphics#google_vignette" target="_blank" rel="noopener" class="card-title">AMD Radeon AI Pro R9700 offre des performances/valeurs graphiques de station de travail compétitives</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2025-11-03</span>
+            <a href="https://www.phoronix.com/review/radeon-ai-pro-r9700-graphics#google_vignette" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2025-06-25" data-text="amd lance officiellement les séries ryzen threadripper pro 9000 et radeon ai pro 9000 ">
+          <div class="card-header">
+            <a href="https://www.techpowerup.com/338086/amd-formally-launches-ryzen-threadripper-pro-9000-and-radeon-ai-pro-9000-series" target="_blank" rel="noopener" class="card-title">AMD lance officiellement les séries Ryzen Threadripper Pro 9000 et Radeon AI Pro 9000</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2025-06-25</span>
+            <a href="https://www.techpowerup.com/338086/amd-formally-launches-ryzen-threadripper-pro-9000-and-radeon-ai-pro-9000-series" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2026-01-09" data-text="demandez à hn : qui exploitera les postes de travail d’ia locaux en 2026 ? ">
+          <div class="card-header">
+            <a href="https://news.ycombinator.com/item?id=46560663" target="_blank" rel="noopener" class="card-title">Demandez à HN : Qui exploitera les postes de travail d’IA locaux en 2026 ?</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2026-01-09</span>
+            <a href="https://news.ycombinator.com/item?id=46560663" target="_blank" rel="noopener" class="read-link">Lire l article</a>
+          </div>
+        </div>
+        <div class="card" data-date="2017-05-10" data-text="nvidia accélère l'ia, lance volta, dgx workstation, robot simulator, etc. ">
+          <div class="card-header">
+            <a href="https://blogs.nvidia.com/blog/2017/05/10/nvidia-accelerates-ai-launches-volta-dgx-workstation-robot-simulator-more/" target="_blank" rel="noopener" class="card-title">Nvidia accélère l'IA, lance Volta, DGX Workstation, Robot Simulator, etc.</a>
+          </div>
+          
+          <div class="card-meta">
+            <span class="source">Hacker News</span>
+            <span class='art-date'>2017-05-10</span>
+            <a href="https://blogs.nvidia.com/blog/2017/05/10/nvidia-accelerates-ai-launches-volta-dgx-workstation-robot-simulator-more/" target="_blank" rel="noopener" class="read-link">Lire l article</a>
           </div>
         </div>
       </section>
