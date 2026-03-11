@@ -18,7 +18,7 @@ if _env.exists():
         pass
 
 from scraper import collect_news
-from mailer import build_html
+from mailer import build_html, send_email
 from pages_publisher import publish_to_pages
 
 
@@ -57,6 +57,13 @@ def main():
     else:
         print("[WARN] GitHub Pages non publié — GITHUB_TOKEN manquant ou erreur")
         sys.exit(1)
+
+    # 5. Envoi email
+    email_ok = send_email(articles)
+    if email_ok:
+        print("Email envoyé")
+    else:
+        print("[WARN] Email non envoyé (SMTP indisponible ou config incomplète)")
 
 
 if __name__ == "__main__":

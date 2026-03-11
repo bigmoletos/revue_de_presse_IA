@@ -32,4 +32,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REVUE_GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          SMTP_HOST: smtp.gmail.com
+          SMTP_PORT: "587"
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
         run: python run_ci.py
