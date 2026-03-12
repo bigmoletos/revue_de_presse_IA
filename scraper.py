@@ -2,25 +2,35 @@
 Collecte d'actualites IA + Hardware sans API payante.
 Sources : flux RSS + HN Algolia (pas de cle requise).
 """
+import os
 import requests
 import xml.etree.ElementTree as ET
-from datetime import date, datetime, timezone
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 from urllib.parse import quote_plus
 
-try:
-    from deep_translator import GoogleTranslator
-    def _translate(text: str) -> str:
-        if not text or len(text) < 10:
+# Traduction désactivée en CI (trop lente — centaines de requêtes HTTP)
+_CI = os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")
+
+if not _CI:
+    try:
+        from deep_translator import GoogleTranslator
+        def _translate(text: str) -> str:
+            if not text or len(text) < 10:
+                return text
+            try:
+                result = GoogleTranslator(source="auto", target="fr").translate(text[:500])
+                return result if result else text
+            except Exception:
+                return text
+        GoogleTranslator(source="auto", target="fr").translate("test")
+        print("  [TRANSLATE] Google Translate actif")
+    except Exception:
+        print("  [TRANSLATE] Google Translate indisponible")
+        def _translate(text: str) -> str:
             return text
-        try:
-            result = GoogleTranslator(source="auto", target="fr").translate(text[:500])
-            return result if result else text
-        except Exception:
-            return text
-    _test = GoogleTranslator(source="auto", target="fr").translate("test")
-    print("  [TRANSLATE] Google Translate actif")
-except Exception:
-    print("  [TRANSLATE] Google Translate indisponible — textes en anglais")
+else:
+    print("  [TRANSLATE] Désactivé en CI")
     def _translate(text: str) -> str:
         return text
 
@@ -233,7 +243,7 @@ def _parse_feed(root, name: str, filtered: bool, max_items: int) -> list[dict]:
 
 def fetch_rss(name: str, url: str, max_items: int = 5, filtered: bool = True) -> list[dict]:
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp = requests.get(url, headers=HEADERS, timeout=8)
         resp.raise_for_status()
         root = ET.fromstring(resp.content)
         return _parse_feed(root, name, filtered=filtered, max_items=max_items)
@@ -245,7 +255,7 @@ def fetch_rss(name: str, url: str, max_items: int = 5, filtered: bool = True) ->
 def fetch_hn_algolia(query: str, max_items: int = 8) -> list[dict]:
     try:
         url = f"https://hn.algolia.com/api/v1/search_by_date?query={quote_plus(query)}&tags=story&hitsPerPage={max_items}"
-        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp = requests.get(url, headers=HEADERS, timeout=8)
         resp.raise_for_status()
         hits = resp.json().get("hits", [])
         results = []
@@ -269,21 +279,6 @@ def fetch_hn_algolia(query: str, max_items: int = 8) -> list[dict]:
 def collect_news() -> list[dict]:
     all_articles = []
 
-    # 1. Flux filtrés (sources généralistes — on garde seulement ce qui est pertinent)
-    print("  → Collecte RSS filtrée...")
-    for name, url in RSS_FEEDS_FILTERED:
-        articles = fetch_rss(name, url, filtered=True)
-        print(f"     {name}: {len(articles)} article(s)")
-        all_articles.extend(articles)
-
-    # 2. Flux non filtrés (sources 100% IA/tech — tout passe)
-    print("  → Collecte RSS non filtrée (sources IA)...")
-    for name, url in RSS_FEEDS_UNFILTERED:
-        articles = fetch_rss(name, url, max_items=10, filtered=False)
-        print(f"     {name}: {len(articles)} article(s)")
-        all_articles.extend(articles)
-
-    # 3. Hacker News — requêtes ciblées sur les vrais sujets d'intérêt
     hn_queries = [
         # Vibe coding & IDE
         "vibe coding tips", "cursor AI tips", "vscode AI extension",
@@ -299,11 +294,39 @@ def collect_news() -> list[dict]:
         # Startups & launches
         "AI startup launch", "new AI tool developer",
     ]
-    print("  → Hacker News (Algolia)...")
+
+    # Paralléliser toutes les requêtes RSS + HN
+    print("  → Collecte parallèle (RSS + HN)...")
+    tasks = []
+    for name, url in RSS_FEEDS_FILTERED:
+        tasks.append(("rss_filtered", name, url))
+    for name, url in RSS_FEEDS_UNFILTERED:
+        tasks.append(("rss_unfiltered", name, url))
     for q in hn_queries:
-        results = fetch_hn_algolia(q, max_items=5)
-        print(f"     '{q}': {len(results)} article(s)")
-        all_articles.extend(results)
+        tasks.append(("hn", q, None))
+
+    def _run_task(task):
+        kind, a, b = task
+        if kind == "rss_filtered":
+            arts = fetch_rss(a, b, max_items=5, filtered=True)
+            print(f"     {a}: {len(arts)} article(s)")
+            return arts
+        elif kind == "rss_unfiltered":
+            arts = fetch_rss(a, b, max_items=10, filtered=False)
+            print(f"     {a}: {len(arts)} article(s)")
+            return arts
+        else:  # hn
+            arts = fetch_hn_algolia(a, max_items=5)
+            print(f"     HN '{a}': {len(arts)} article(s)")
+            return arts
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(_run_task, t): t for t in tasks}
+        for future in as_completed(futures):
+            try:
+                all_articles.extend(future.result())
+            except Exception as e:
+                print(f"  [TASK] Erreur: {e}")
 
     # Dédupliquer
     seen_urls, seen_titles, unique = set(), set(), []
