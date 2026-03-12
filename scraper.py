@@ -195,6 +195,14 @@ def _parse_date(date_str: str) -> datetime:
     return datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
+def _normalize_date(date_str: str) -> str:
+    """Normalise n'importe quel format de date RSS/Atom en YYYY-MM-DD."""
+    dt = _parse_date(date_str)
+    if dt.year == 1970:
+        return ""
+    return dt.strftime("%Y-%m-%d")
+
+
 def _parse_feed(root, name: str, filtered: bool, max_items: int) -> list[dict]:
     """Parse un flux RSS ou Atom, avec ou sans filtre keyword."""
     ns = {"atom": "http://www.w3.org/2005/Atom"}
@@ -204,7 +212,7 @@ def _parse_feed(root, name: str, filtered: bool, max_items: int) -> list[dict]:
         title = (item.findtext("title") or "").strip()
         link  = (item.findtext("link")  or "").strip()
         desc  = (item.findtext("description") or "").strip()
-        pub   = item.findtext("pubDate") or ""
+        pub   = _normalize_date(item.findtext("pubDate") or "")
         if not filtered or _is_relevant(title + " " + desc):
             items.append({"title": _translate(title), "link": link,
                           "summary": _translate(desc[:300]), "date": pub, "source": name})
@@ -214,7 +222,7 @@ def _parse_feed(root, name: str, filtered: bool, max_items: int) -> list[dict]:
         link_el = entry.find("atom:link", ns)
         link    = link_el.get("href", "") if link_el is not None else ""
         summary = (entry.findtext("atom:summary", namespaces=ns) or "").strip()
-        pub     = entry.findtext("atom:updated", namespaces=ns) or ""
+        pub     = _normalize_date(entry.findtext("atom:updated", namespaces=ns) or "")
         if not filtered or _is_relevant(title + " " + summary):
             items.append({"title": _translate(title), "link": link,
                           "summary": _translate(summary[:300]), "date": pub, "source": name})
@@ -249,7 +257,7 @@ def fetch_hn_algolia(query: str, max_items: int = 8) -> list[dict]:
                     "title": _translate(title),
                     "link": link,
                     "summary": "",
-                    "date": h.get("created_at", ""),
+                    "date": _normalize_date(h.get("created_at", "")),
                     "source": "Hacker News",
                 })
         return results

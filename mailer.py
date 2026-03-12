@@ -45,7 +45,7 @@ def build_html(articles, pages_url: str = ""):
         art["_slug"]  = _short_title(art.get("title", ""))
 
     raw_dates = sorted(
-        {art.get("date", "")[:10] for art in articles if art.get("date", "")[:10]},
+        {art.get("date", "") for art in articles if art.get("date", "")},
         reverse=True,
     )
     date_options = "\n".join(
@@ -83,7 +83,7 @@ def build_html(articles, pages_url: str = ""):
             link     = art.get("link", "#")
             summary  = art.get("summary", "")
             source   = art.get("source", "")
-            art_date = art.get("date", "")[:10]
+            art_date = art.get("date", "")
             summary_html = f"<p class='card-summary'>{summary}</p>" if summary else ""
             date_html    = f"<span class='art-date'>{art_date}</span>" if art_date else ""
             # Article collapsé par défaut avec slug comme label visible
