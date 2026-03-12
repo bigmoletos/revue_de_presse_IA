@@ -59,7 +59,7 @@ def main():
         sys.exit(1)
 
     # 5. Envoi email
-    email_ok = send_email(articles)
+    email_ok = send_email(articles, pages_url=pages_url or "")
     if email_ok:
         print("Email envoyé")
     else:
