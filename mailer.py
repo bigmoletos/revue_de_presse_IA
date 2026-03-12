@@ -208,10 +208,19 @@ function applyFilters(){{
 
 
 def send_email(articles, pages_url: str = ""):
-    """Envoie la revue par email SMTP. Retourne False si SMTP indisponible."""
+    """Envoie la revue par email SMTP. Retourne False si SMTP indisponible.
+    MAIL_TO accepte plusieurs adresses séparées par virgule ou point-virgule.
+    """
     if not all([SMTP_USER, SMTP_PASSWORD, MAIL_TO]):
         print("[MAILER] Config SMTP incomplete - skip email")
         return False
+
+    # Normalise la liste des destinataires (virgule ou point-virgule)
+    recipients = [r.strip() for r in MAIL_TO.replace(";", ",").split(",") if r.strip()]
+    if not recipients:
+        print("[MAILER] Aucun destinataire valide - skip email")
+        return False
+
     try:
         html = build_html(articles, pages_url=pages_url)
         today_label = date.today().strftime("%d/%m/%Y")
@@ -219,15 +228,15 @@ def send_email(articles, pages_url: str = ""):
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"]    = SMTP_USER
-        msg["To"]      = MAIL_TO
+        msg["To"]      = ", ".join(recipients)
         msg.attach(MIMEText(html, "html", "utf-8"))
         context = ssl.create_default_context()
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
             server.ehlo()
             server.starttls(context=context)
             server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_USER, MAIL_TO.split(","), msg.as_string())
-        print(f"[MAILER] Email envoye a {MAIL_TO}")
+            server.sendmail(SMTP_USER, recipients, msg.as_string())
+        print(f"[MAILER] Email envoye a {', '.join(recipients)}")
         return True
     except (smtplib.SMTPException, OSError, TimeoutError) as e:
         print(f"[MAILER] SMTP indisponible ({e}) - fallback rapport HTML")
