@@ -48,15 +48,23 @@ RSS_FEEDS_FILTERED = [
 # ── Flux RSS non filtrés (tout passe — sources 100% IA/tech) ─────────────
 RSS_FEEDS_UNFILTERED = [
     # Lancements produits IA — Product Hunt top AI du jour
-    ("Product Hunt — AI",     "https://www.producthunt.com/feed?category=artificial-intelligence"),
+    ("Product Hunt — AI",       "https://www.producthunt.com/feed?category=artificial-intelligence"),
     # TechCrunch IA
-    ("TechCrunch — AI",       "https://techcrunch.com/category/artificial-intelligence/feed/"),
+    ("TechCrunch — AI",         "https://techcrunch.com/category/artificial-intelligence/feed/"),
     # The AI Times / newsletters
-    ("AI News",               "https://www.artificialintelligence-news.com/feed/"),
+    ("AI News",                 "https://www.artificialintelligence-news.com/feed/"),
     # Startups & funding
-    ("TechCrunch — Startups", "https://techcrunch.com/category/startups/feed/"),
+    ("TechCrunch — Startups",   "https://techcrunch.com/category/startups/feed/"),
     # Blogs spécialisés vibe coding / dev tools
-    ("Towards Data Science",  "https://towardsdatascience.com/feed"),
+    ("Towards Data Science",    "https://towardsdatascience.com/feed"),
+    # Open source LLM & Hugging Face
+    ("Hugging Face Blog",       "https://huggingface.co/blog/feed.xml"),
+    # LLM news agrégateur
+    ("The Batch — DeepLearning","https://www.deeplearning.ai/the-batch/feed/"),
+    # Dev tools & IDE
+    ("Dev.to — LLM",            "https://dev.to/feed/tag/llm"),
+    ("Dev.to — Cursor",         "https://dev.to/feed/tag/cursor"),
+    ("Dev.to — Agents",         "https://dev.to/feed/tag/aiagents"),
 ]
 
 # ── Mots-clés thématiques (concepts, pas noms de produits) ───────────────
@@ -65,24 +73,55 @@ RSS_FEEDS_UNFILTERED = [
 KEYWORDS_CODING = [
     "vibe cod", "ai cod", "code generation", "code gen", "coding assistant",
     "ai developer", "developer tool", "devtool", "ide plugin", "code completion",
-    "pair programming", "automated coding", "software engineer", "ai programming",
+    "pair programming", "automated coding", "ai programming",
     "code review ai", "test generation", "ai testing", "code refactor",
+    # Qualité sur gros projets
+    "large codebase", "monorepo", "legacy code", "technical debt",
+    "code quality", "architecture ai", "refactoring ai", "context window code",
+    "long context", "multi-file", "project-wide", "codebase understanding",
+    # IDE spécifiques
+    "cursor tip", "cursor trick", "cursor feature", "cursor update", "cursor ai",
+    "kiro feature", "kiro update", "kiro tip",
+    "vscode ai", "vscode extension", "vscode copilot", "vscode tip",
+    "windsurf feature", "windsurf update",
+    "github copilot", "copilot workspace", "copilot feature",
+    # Astuces vibe coding
+    "prompt engineering code", "system prompt", "rules for ai",
+    ".cursorrules", "cursor rules", "ai rules", "context file",
+    "memory bank", "project context", "ai workflow", "coding workflow",
 ]
 
-# Thème : Agents IA / automatisation
+# Thème : Agents IA / automatisation / pipelines
 KEYWORDS_AGENTS = [
     "ai agent", "agentic", "autonomous agent", "multi-agent", "workflow automation",
     "ai assistant", "ai copilot", "ai workflow", "task automation", "ai orchestrat",
     "function calling", "tool use", "model context", "mcp", "computer use",
     "browser automation", "rpa ai",
+    # Pipelines & frameworks
+    "langchain", "langgraph", "autogen", "crewai", "dspy", "smolagents",
+    "n8n", "make.com", "zapier ai", "pipeline ai", "automation pipeline",
+    "ci/cd ai", "devops ai", "ai pipeline", "data pipeline ai",
+    # Patterns d'automatisation
+    "agentic workflow", "agent loop", "tool calling", "function calling",
+    "structured output", "json mode", "constrained generation",
 ]
 
-# Thème : Modèles de langage (LLM)
+# Thème : Modèles de langage (LLM) — surtout open source
 KEYWORDS_LLM = [
     "llm", "large language model", "foundation model", "language model",
     "transformer", "fine-tun", "rag", "retrieval augmented", "embedding",
     "benchmark", "evals", "context window", "multimodal", "vision model",
     "reasoning model", "chain of thought", "prompt engineer",
+    # Open source en priorité
+    "open source model", "open weight", "open llm", "hugging face",
+    "ollama model", "local llm", "self-hosted", "on-premise ai",
+    "mistral", "llama", "qwen", "deepseek", "phi-", "gemma", "falcon",
+    "mixtral", "command r", "yi-", "internlm", "codellama",
+    "model release", "new model", "model launch", "weights released",
+    # Techniques d'amélioration
+    "quantiz", "gguf", "ggml", "lora", "qlora", "peft",
+    "context length", "long context", "128k", "200k", "1m token",
+    "inference speed", "token per second", "latency model",
 ]
 
 # Thème : Audio / voix / multimédia IA
@@ -98,6 +137,7 @@ KEYWORDS_STARTUP = [
     "raises", "funding", "seed round", "series a", "series b", "million",
     "billion", "valuation", "venture", "invest", "launch", "lève", "milliard",
     "annonce", "nouveau", "new ai", "ai startup", "founded", "backed by",
+    "product launch", "new tool", "new feature", "just launched", "just released",
 ]
 
 # Thème : GPU / hardware IA
@@ -235,12 +275,21 @@ def collect_news() -> list[dict]:
         print(f"     {name}: {len(articles)} article(s)")
         all_articles.extend(articles)
 
-    # 3. Hacker News — requêtes élargies
+    # 3. Hacker News — requêtes ciblées sur les vrais sujets d'intérêt
     hn_queries = [
-        "vibe coding", "AI coding assistant", "LLM code generation",
-        "NVIDIA GPU AI", "AI startup launch", "new AI tool",
-        "fish audio", "voice AI", "AI agent framework",
-        "GPT-5", "Claude 4", "Gemini 2",
+        # Vibe coding & IDE
+        "vibe coding tips", "cursor AI tips", "vscode AI extension",
+        "AI coding large project", "cursorrules", "AI code quality",
+        # LLM open source
+        "open source LLM release", "new open weight model", "local LLM",
+        "ollama new model", "huggingface model release",
+        # Agents & pipelines
+        "AI agent workflow", "LLM pipeline automation", "MCP model context protocol",
+        "agentic coding", "n8n AI", "AI automation workflow",
+        # Hardware
+        "NVIDIA GPU AI", "new AI chip",
+        # Startups & launches
+        "AI startup launch", "new AI tool developer",
     ]
     print("  → Hacker News (Algolia)...")
     for q in hn_queries:
