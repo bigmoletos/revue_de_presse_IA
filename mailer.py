@@ -6,7 +6,7 @@ import smtplib
 import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import date
+from datetime import date, timedelta
 
 from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, MAIL_TO
 from scraper import detect_theme
@@ -207,24 +207,140 @@ function applyFilters(){{
 </html>"""
 
 
+def build_email_html(articles, pages_url: str = "") -> tuple[str, int]:
+    """
+    Génère un HTML simple compatible email (Outlook, Gmail).
+    Filtre sur les articles de la veille uniquement.
+    Retourne (html, nb_articles).
+    """
+    yesterday = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+    today_str  = date.today().strftime("%Y-%m-%d")
+
+    # Garde veille + aujourd'hui (le cron tourne tôt le matin)
+    recent = [
+        a for a in articles
+        if a.get("date", "") in (yesterday, today_str)
+    ]
+    # Fallback : si rien de récent, on prend les 20 plus récents
+    if not recent:
+        sorted_all = sorted(articles, key=lambda x: x.get("date", ""), reverse=True)
+        recent = sorted_all[:20]
+
+    for art in recent:
+        art["_theme"] = _assign_theme(art)
+
+    grouped = {t: [] for t in THEME_ORDER}
+    for art in recent:
+        theme = art["_theme"]
+        if theme not in grouped:
+            grouped[theme] = []
+        grouped[theme].append(art)
+
+    today_label = date.today().strftime("%d/%m/%Y")
+    pages_btn = (
+        f'<tr><td align="center" style="padding:16px 0 8px;">'
+        f'<a href="{pages_url}" style="background:#7c6af7;color:#fff;padding:10px 24px;'
+        f'border-radius:6px;text-decoration:none;font-size:14px;font-weight:600;">'
+        f'📄 Voir tous les articles sur GitHub Pages</a></td></tr>'
+    ) if pages_url else ""
+
+    sections = ""
+    for theme in THEME_ORDER:
+        arts = grouped.get(theme, [])
+        if not arts:
+            continue
+        rows = ""
+        for art in arts:
+            title   = art.get("title", "Sans titre")
+            link    = art.get("link", "#")
+            summary = art.get("summary", "")
+            source  = art.get("source", "")
+            art_date = art.get("date", "")
+            slug    = _short_title(title)
+            summary_row = (
+                f'<tr><td style="padding:0 16px 10px;color:#8892a4;font-size:13px;line-height:1.5;">'
+                f'{summary[:200]}{"…" if len(summary) > 200 else ""}</td></tr>'
+            ) if summary else ""
+            rows += f"""
+        <tr>
+          <td style="padding:10px 16px 0;">
+            <a href="{link}" style="color:#7c6af7;font-size:15px;font-weight:600;text-decoration:none;">{slug}</a>
+            <span style="color:#8892a4;font-size:12px;margin-left:8px;">{source} · {art_date}</span>
+          </td>
+        </tr>
+        {summary_row}
+        <tr><td style="padding:2px 16px 8px;">
+          <a href="{link}" style="color:#4ade80;font-size:12px;text-decoration:none;">→ Lire l'article</a>
+        </td></tr>
+        <tr><td style="border-bottom:1px solid #2a2d3a;"></td></tr>"""
+
+        sections += f"""
+      <tr><td style="padding:20px 16px 6px;">
+        <span style="color:#7c6af7;font-size:13px;font-weight:700;text-transform:uppercase;
+          letter-spacing:.05em;border-left:3px solid #7c6af7;padding-left:8px;">
+          {theme} ({len(arts)})
+        </span>
+      </td></tr>
+      {rows}"""
+
+    html = f"""<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0f1117;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#0f1117;">
+  <tr><td align="center" style="padding:20px 10px;">
+    <table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;
+      background:#1a1d27;border-radius:10px;border:1px solid #2a2d3a;">
+
+      <!-- Header -->
+      <tr><td style="padding:24px 24px 16px;border-bottom:1px solid #2a2d3a;">
+        <span style="font-size:22px;font-weight:700;color:#e2e8f0;">📰 Revue IA</span>
+        <span style="font-size:14px;color:#8892a4;margin-left:12px;">{today_label}</span>
+        <br><span style="font-size:13px;color:#8892a4;margin-top:4px;display:block;">
+          {len(recent)} nouveautés de la veille
+        </span>
+      </td></tr>
+
+      <!-- Lien Pages -->
+      {pages_btn}
+
+      <!-- Articles par thème -->
+      {sections}
+
+      <!-- Footer -->
+      <tr><td style="padding:20px 24px;border-top:1px solid #2a2d3a;text-align:center;">
+        <span style="color:#8892a4;font-size:12px;">
+          Revue IA automatique · Généré le {today_label}
+          {f' · <a href="{pages_url}" style="color:#7c6af7;">Archive complète</a>' if pages_url else ''}
+        </span>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>"""
+    return html, len(recent)
+
+
 def send_email(articles, pages_url: str = ""):
     """Envoie la revue par email SMTP. Retourne False si SMTP indisponible.
     MAIL_TO accepte plusieurs adresses séparées par virgule ou point-virgule.
+    Envoie uniquement les articles de la veille avec un HTML compatible email.
     """
     if not all([SMTP_USER, SMTP_PASSWORD, MAIL_TO]):
         print("[MAILER] Config SMTP incomplete - skip email")
         return False
 
-    # Normalise la liste des destinataires (virgule ou point-virgule)
     recipients = [r.strip() for r in MAIL_TO.replace(";", ",").split(",") if r.strip()]
     if not recipients:
         print("[MAILER] Aucun destinataire valide - skip email")
         return False
 
     try:
-        html = build_html(articles, pages_url=pages_url)
+        html, nb = build_email_html(articles, pages_url=pages_url)
         today_label = date.today().strftime("%d/%m/%Y")
-        subject = f"Revue IA - {today_label} ({len(articles)} articles)"
+        subject = f"Revue IA - {today_label} ({nb} nouveautés)"
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"]    = SMTP_USER
@@ -236,7 +352,7 @@ def send_email(articles, pages_url: str = ""):
             server.starttls(context=context)
             server.login(SMTP_USER, SMTP_PASSWORD)
             server.sendmail(SMTP_USER, recipients, msg.as_string())
-        print(f"[MAILER] Email envoye a {', '.join(recipients)}")
+        print(f"[MAILER] Email envoye a {', '.join(recipients)} ({nb} articles)")
         return True
     except (smtplib.SMTPException, OSError, TimeoutError) as e:
         print(f"[MAILER] SMTP indisponible ({e}) - fallback rapport HTML")
