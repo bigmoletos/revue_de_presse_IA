@@ -9,27 +9,24 @@ from email.mime.text import MIMEText
 from datetime import date
 
 from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, MAIL_TO
+from scraper import detect_theme
 
-THEMES = {
-    "Vibe Coding":             ["vibe cod", "vibe-cod", "vibecod"],
-    "Assistants et Agents IA": ["agent", "copilot", "cursor", "kiro", "windsurf", "agentic", "assistant"],
-    "Modeles et LLM":          ["llm", "gpt", "claude", "gemini", "codestral", "mistral", "model", "llama", "deepseek", "qwen"],
-    "Generation de code":      ["code generation", "code gen", "ai cod", "coding ai"],
-    "GPU et Hardware":         ["nvidia", "amd", "gpu", "dgx", "geforce", "radeon", "rtx", "h100", "h200", "b200",
-                                "blackwell", "hopper", "mi300", "groq", "tpu", "npu", "ai pc", "workstation"],
-    "Entreprise et Industrie": ["enterprise", "large project", "production", "deploy"],
-    "Autres":                  [],
-}
+# Ordre d'affichage des thèmes
+THEME_ORDER = [
+    "Vibe Coding",
+    "Assistants et Agents IA",
+    "Audio et Voix IA",
+    "Modeles et LLM",
+    "GPU et Hardware",
+    "Startups et Financement",
+    "Entreprise et Industrie",
+    "Autres",
+]
 
 
 def _assign_theme(article):
     text = (article.get("title", "") + " " + article.get("summary", "")).lower()
-    for theme, keywords in THEMES.items():
-        if theme == "Autres":
-            continue
-        if any(kw in text for kw in keywords):
-            return theme
-    return "Autres"
+    return detect_theme(text)
 
 
 def _short_title(title: str) -> str:
@@ -55,14 +52,17 @@ def build_html(articles, pages_url: str = ""):
         f'<option value="{d}">{d}</option>' for d in raw_dates
     )
 
-    grouped = {t: [] for t in THEMES}
+    grouped = {t: [] for t in THEME_ORDER}
     for art in articles:
-        grouped[art["_theme"]].append(art)
+        theme = art["_theme"]
+        if theme not in grouped:
+            grouped[theme] = []
+        grouped[theme].append(art)
 
     # Nav thèmes
     nav_links = "\n".join(
         f'<a href="#{t.replace(" ", "-")}" class="nav-link">{t} <span class="badge">{len(grouped[t])}</span></a>'
-        for t in THEMES if grouped[t]
+        for t in THEME_ORDER if grouped.get(t)
     )
 
     # Filtre GPU rapide
@@ -71,7 +71,8 @@ def build_html(articles, pages_url: str = ""):
     pages_link = f'<a href="{pages_url}" target="_blank" class="pages-link">📄 Voir sur GitHub Pages</a>' if pages_url else ""
 
     sections_html = ""
-    for theme, arts in grouped.items():
+    for theme in THEME_ORDER:
+        arts = grouped.get(theme, [])
         if not arts:
             continue
         anchor = theme.replace(" ", "-")

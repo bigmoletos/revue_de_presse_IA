@@ -59,41 +59,91 @@ RSS_FEEDS_UNFILTERED = [
     ("Towards Data Science",  "https://towardsdatascience.com/feed"),
 ]
 
-# ── Mots-clés pour les flux filtrés ──────────────────────────────────────
-AI_KEYWORDS = [
-    # Outils de coding IA
-    "vibe cod", "ai cod", "llm", "copilot", "cursor", "kiro", "windsurf",
-    "claude", "gemini", "gpt", "codestral", "agentic", "code generation",
-    "ai agent", "large language", "enterprise ai", "mistral", "anthropic",
-    "openai", "deepseek", "qwen", "llama", "codeium", "tabnine", "replit",
-    "devin", "swe-agent", "aide", "continue", "cline", "bolt", "lovable",
-    # Audio / multimodal IA
-    "text to speech", "tts", "voice cloning", "audio ai", "speech synthesis",
-    "fish audio", "elevenlabs", "suno", "udio", "stable audio",
-    # Agents & frameworks
-    "langchain", "langgraph", "autogen", "crewai", "dspy", "smolagents",
-    "mcp", "model context protocol", "function calling",
-    # Modèles & infra
-    "transformer", "diffusion model", "fine-tun", "rag", "retrieval",
-    "embedding", "vector", "inference", "quantiz",
-    # Startups & funding
-    "seed round", "series a", "raises", "lève", "funding", "startup ai",
-    "ami labs", "lecun", "yann",
+# ── Mots-clés thématiques (concepts, pas noms de produits) ───────────────
+
+# Thème : Vibe coding / génération de code IA
+KEYWORDS_CODING = [
+    "vibe cod", "ai cod", "code generation", "code gen", "coding assistant",
+    "ai developer", "developer tool", "devtool", "ide plugin", "code completion",
+    "pair programming", "automated coding", "software engineer", "ai programming",
+    "code review ai", "test generation", "ai testing", "code refactor",
 ]
 
-HARDWARE_KEYWORDS = [
-    "nvidia", "amd", "intel", "gpu", "dgx", "spark dgx", "workstation",
-    "geforce", "radeon", "rtx", "h100", "h200", "b200", "blackwell",
-    "hopper", "mi300", "ryzen ai", "npu", "ai pc", "ai workstation",
-    "groq", "tpu", "inference chip", "data center", "hpc",
+# Thème : Agents IA / automatisation
+KEYWORDS_AGENTS = [
+    "ai agent", "agentic", "autonomous agent", "multi-agent", "workflow automation",
+    "ai assistant", "ai copilot", "ai workflow", "task automation", "ai orchestrat",
+    "function calling", "tool use", "model context", "mcp", "computer use",
+    "browser automation", "rpa ai",
 ]
 
-ALL_KEYWORDS = AI_KEYWORDS + HARDWARE_KEYWORDS
+# Thème : Modèles de langage (LLM)
+KEYWORDS_LLM = [
+    "llm", "large language model", "foundation model", "language model",
+    "transformer", "fine-tun", "rag", "retrieval augmented", "embedding",
+    "benchmark", "evals", "context window", "multimodal", "vision model",
+    "reasoning model", "chain of thought", "prompt engineer",
+]
+
+# Thème : Audio / voix / multimédia IA
+KEYWORDS_AUDIO = [
+    "text to speech", "tts", "voice cloning", "voice synthesis", "speech synthesis",
+    "audio generation", "audio ai", "voice ai", "speech recognition", "asr",
+    "music generation", "sound generation", "voice model", "audio model",
+    "real-time voice", "voice conversion",
+]
+
+# Thème : Startups IA / financement
+KEYWORDS_STARTUP = [
+    "raises", "funding", "seed round", "series a", "series b", "million",
+    "billion", "valuation", "venture", "invest", "launch", "lève", "milliard",
+    "annonce", "nouveau", "new ai", "ai startup", "founded", "backed by",
+]
+
+# Thème : GPU / hardware IA
+KEYWORDS_HARDWARE = [
+    "nvidia", "amd", "intel", "gpu", "dgx", "geforce", "radeon", "rtx",
+    "h100", "h200", "b200", "blackwell", "hopper", "mi300", "groq", "tpu",
+    "npu", "ai chip", "ai pc", "ai workstation", "data center", "hpc",
+    "inference hardware", "training cluster",
+]
+
+# Thème : Entreprise / production IA
+KEYWORDS_ENTERPRISE = [
+    "enterprise ai", "production ai", "ai deployment", "ai platform",
+    "ai infrastructure", "mlops", "ai ops", "model serving", "ai governance",
+    "responsible ai", "ai security", "ai compliance", "ai integration",
+]
+
+ALL_KEYWORDS = (
+    KEYWORDS_CODING + KEYWORDS_AGENTS + KEYWORDS_LLM +
+    KEYWORDS_AUDIO + KEYWORDS_STARTUP + KEYWORDS_HARDWARE + KEYWORDS_ENTERPRISE
+)
 
 
 def _is_relevant(text: str) -> bool:
     t = text.lower()
     return any(kw in t for kw in ALL_KEYWORDS)
+
+
+def detect_theme(text: str) -> str:
+    """Détecte le thème principal d'un article par ses mots-clés sémantiques."""
+    t = text.lower()
+    if any(kw in t for kw in KEYWORDS_AUDIO):
+        return "Audio et Voix IA"
+    if any(kw in t for kw in KEYWORDS_CODING):
+        return "Vibe Coding"
+    if any(kw in t for kw in KEYWORDS_AGENTS):
+        return "Assistants et Agents IA"
+    if any(kw in t for kw in KEYWORDS_LLM):
+        return "Modeles et LLM"
+    if any(kw in t for kw in KEYWORDS_HARDWARE):
+        return "GPU et Hardware"
+    if any(kw in t for kw in KEYWORDS_STARTUP):
+        return "Startups et Financement"
+    if any(kw in t for kw in KEYWORDS_ENTERPRISE):
+        return "Entreprise et Industrie"
+    return "Autres"
 
 
 def _parse_date(date_str: str) -> datetime:
