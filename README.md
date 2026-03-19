@@ -1,6 +1,6 @@
 # Revue de Presse IA
 
-Pipeline automatise de veille technologique IA — collecte, traduction FR, publication HTML.
+Pipeline automatisé de veille technologique IA — collecte RSS + Hacker News, publication GitHub Pages, envoi email quotidien.
 
 **URL publique** : https://bigmoletos.github.io/revue_de_presse_IA/
 
@@ -8,13 +8,41 @@ Pipeline automatise de veille technologique IA — collecte, traduction FR, publ
 
 ## Fonctionnement
 
-1. Collecte RSS (The Verge, Ars Technica, VentureBeat, Simon Willison, TDS, Dev.to) + Hacker News
-2. Deduplication par URL et titre
-3. Traduction automatique FR via Google Translate (deep-translator, sans cle API)
-4. Generation rapport HTML dark-theme avec recherche et filtre par date
+1. Collecte parallèle (ThreadPoolExecutor x10) de 22 flux RSS + 20 requêtes Hacker News Algolia
+2. Déduplication par URL et titre normalisé
+3. Classification thématique automatique par mots-clés sémantiques (`detect_theme`)
+4. Génération rapport HTML dark-theme interactif (recherche, filtre date, filtre GPU, articles collapsés)
 5. Publication sur GitHub Pages (branche `gh-pages`)
+6. Envoi email SMTP — **articles de la veille uniquement**, HTML compatible Outlook/Gmail
 
-Execution automatique : **lundi au vendredi a 7h30 (UTC+1)**
+Exécution automatique : **lundi au vendredi à 06h30 UTC (= 07h30 Paris)**
+
+---
+
+## Sources couvertes
+
+### Flux RSS filtrés (keywords requis)
+The Verge AI, Ars Technica, VentureBeat AI, Simon Willison, Dev.to AI, The Verge Tech, Tom's Hardware, NVIDIA Blog, Google AI Blog, OpenAI Blog, Anthropic News, Mistral AI Blog
+
+### Flux RSS non filtrés (100% IA/tech — tout passe)
+Product Hunt AI, TechCrunch AI, AI News, TechCrunch Startups, Towards Data Science, Hugging Face Blog, The Batch (DeepLearning.ai), Dev.to LLM/Cursor/Agents
+
+### Hacker News (Algolia)
+Requêtes ciblées : vibe coding, cursor AI, open source LLM, AI agents, MCP, n8n, NVIDIA GPU, AI startup launches...
+
+---
+
+## Thèmes de classification
+
+| Thème | Mots-clés couverts |
+|-------|--------------------|
+| Vibe Coding | IDE (Cursor, Kiro, VSCode), code generation, large codebase, cursorrules, memory bank |
+| Assistants et Agents IA | AI agents, LangChain, n8n, MCP, agentic workflow, automation |
+| Audio et Voix IA | TTS, voice cloning, speech recognition, audio generation |
+| Modèles et LLM | Open source LLM, GGUF, LoRA, fine-tuning, model releases, Ollama |
+| GPU et Hardware | NVIDIA, AMD, H100, Blackwell, AI chip, data center |
+| Startups et Financement | Funding rounds, product launches, new AI tools |
+| Entreprise et Industrie | MLOps, AI deployment, governance, security |
 
 ---
 
@@ -22,119 +50,118 @@ Execution automatique : **lundi au vendredi a 7h30 (UTC+1)**
 
 ```
 revue_de_presse_IA/
-├── scraper.py          # Collecte RSS + HN Algolia
-├── mailer.py           # Generation HTML
-├── config.py           # Configuration (charge .env)
-├── run_ci.py           # Point d'entree CI/CD
-├── pages_publisher.py  # Publication GitHub Pages (branche gh-pages)
-├── notifier.py         # Notifications Windows (toast WinRT)
-├── app.py              # Serveur Flask (usage local uniquement)
-├── requirements.txt    # Dependances Python
-├── .env.example        # Template variables d'environnement
+├── scraper.py           # Collecte RSS + HN Algolia (parallèle, timeout 8s)
+├── mailer.py            # HTML page complète (Pages) + HTML email (veille)
+├── config.py            # Configuration (charge .env ou variables CI)
+├── run_ci.py            # Point d'entrée CI/CD
+├── pages_publisher.py   # Publication GitHub Pages (branche gh-pages)
+├── notifier.py          # Notifications Windows (toast WinRT, usage local)
+├── app.py               # Serveur Flask (usage local uniquement)
+├── requirements.txt     # Dépendances Python
+├── .env.example         # Template variables d'environnement
 └── .github/
     └── workflows/
-        └── revue-presse-ia.yml  # GitHub Actions workflow
+        └── revue-presse-ia.yml  # GitHub Actions (timeout 20 min)
 ```
 
 ---
 
 ## Configuration GitHub
 
-### 1. Secret GitHub Actions
+### Secrets GitHub Actions
 
 Aller dans : **Settings > Secrets and variables > Actions > New repository secret**
 
-| Nom | Valeur |
-|-----|--------|
-| `REVUE_GITHUB_TOKEN` | Token GitHub avec scope `repo` (pour push sur gh-pages) |
+| Secret | Description |
+|--------|-------------|
+| `REVUE_GITHUB_TOKEN` | Token GitHub scope `repo` (push gh-pages) |
+| `SMTP_USER` | Adresse Gmail expéditrice |
+| `SMTP_PASSWORD` | Mot de passe d'application Gmail (pas le mdp principal) |
+| `MAIL_TO` | Destinataire(s) — virgule ou point-virgule pour plusieurs adresses |
 
-Creer le token : https://github.com/settings/tokens
-- Scopes requis : `repo` (full control)
+Exemple `MAIL_TO` multi-destinataires :
+```
+adresse1@gmail.com,adresse2@example.com
+```
 
-### 2. GitHub Pages
+> Pour Gmail : activer la validation en 2 étapes puis générer un **mot de passe d'application** sur https://myaccount.google.com/apppasswords
+
+### GitHub Pages
 
 Aller dans : **Settings > Pages**
 
-| Parametre | Valeur |
+| Paramètre | Valeur |
 |-----------|--------|
 | Source | `Deploy from a branch` |
 | Branch | `gh-pages` |
 | Folder | `/ (root)` |
 
-La branche `gh-pages` est creee automatiquement au premier run du workflow.
+---
 
-URL resultante : `https://bigmoletos.github.io/revue_de_presse_IA/`
+## Email quotidien
 
-### 3. GitHub Actions
+Le mail est envoyé chaque matin après la collecte. Il contient :
 
-Workflow : `.github/workflows/revue-presse-ia.yml`
-
-Permissions requises (deja configurees dans le workflow) :
-```yaml
-permissions:
-  contents: write   # push sur gh-pages
-  pages: write      # publication GitHub Pages
-  id-token: write   # authentification OIDC
-```
-
-Declenchement :
-- **Automatique** : lundi-vendredi a 06h30 UTC (= 07h30 Paris)
-- **Manuel** : onglet Actions > "Revue de Presse IA" > "Run workflow"
+- **Articles de la veille uniquement** (filtre sur date J-1)
+- Fallback sur les 20 plus récents si aucun article daté d'hier
+- Groupés par thème avec compteur
+- Titre court (3 mots) + source + date + résumé 200 chars
+- Bouton "Voir tous les articles sur GitHub Pages" en haut
+- HTML compatible Outlook, Gmail, Apple Mail (table-based, sans JS)
 
 ---
 
-## Variables d'environnement
+## Variables d'environnement locales
 
-Copier `.env.example` en `.env` et remplir :
+Copier `.env.example` en `.env` :
 
 ```env
-GITHUB_TOKEN=ghp_...        # Token avec scope repo (pour push gh-pages en local)
+GITHUB_TOKEN=ghp_...
 GITHUB_REPOSITORY=bigmoletos/revue_de_presse_IA
+
+# Email (optionnel en local)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=moncompte@gmail.com
+SMTP_PASSWORD=xxxx xxxx xxxx xxxx
+MAIL_TO=dest1@gmail.com,dest2@example.com
 ```
 
-En CI (GitHub Actions), `GITHUB_TOKEN` est injecte via le secret `REVUE_GITHUB_TOKEN`.
+> En CI, la traduction (`deep_translator`) est automatiquement désactivée (variable `CI=true`) pour éviter les timeouts.
 
 ---
 
 ## Installation locale
 
 ```bash
-# Cloner
 git clone https://github.com/bigmoletos/revue_de_presse_IA.git
 cd revue_de_presse_IA
-
-# Installer les dependances (Python 3.11+)
 pip install -r requirements.txt
-
-# Configurer
 cp .env.example .env
-# Editer .env avec votre GITHUB_TOKEN
-
-# Lancer
+# Éditer .env
 python run_ci.py
 ```
-
-Le rapport HTML est genere dans `rapports/revue_YYYY-MM-DD.html`.
 
 ---
 
 ## Lancement manuel du workflow
 
 ```bash
-# Via GitHub CLI
 gh workflow run revue-presse-ia.yml
-
-# Ou depuis l'interface web
-# https://github.com/bigmoletos/revue_de_presse_IA/actions
+# ou depuis : https://github.com/bigmoletos/revue_de_presse_IA/actions
 ```
+
+> Le cron ne se déclenche pas si le workflow n'a jamais été lancé manuellement — faire un premier `workflow_dispatch`.
 
 ---
 
 ## Troubleshooting
 
-| Probleme | Cause | Solution |
+| Problème | Cause | Solution |
 |----------|-------|----------|
-| `403 Write access not granted` | Token sans scope `repo` | Regenerer le token avec scope `repo` |
-| `GITHUB_TOKEN manquant` | Secret non configure | Ajouter `REVUE_GITHUB_TOKEN` dans Settings > Secrets |
-| Pages non activees | GitHub Pages desactive | Settings > Pages > activer sur branche `gh-pages` |
-| Aucun article collecte | Sources RSS indisponibles | Verifier la connectivite, relancer manuellement |
+| `403 Write access not granted` | Token sans scope `repo` | Régénérer avec scope `repo` |
+| `GITHUB_TOKEN manquant` | Secret non configuré | Ajouter `REVUE_GITHUB_TOKEN` dans Settings > Secrets |
+| Pages non activées | GitHub Pages désactivé | Settings > Pages > activer sur `gh-pages` |
+| Timeout CI > 20 min | Trop de sources lentes | Réduire `RSS_FEEDS_FILTERED` ou augmenter `timeout-minutes` |
+| Email non reçu | Secrets SMTP manquants | Vérifier `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_TO` dans Secrets |
+| Mail vide (0 articles) | Aucun article daté d'hier | Normal le lundi — fallback sur les 20 plus récents |

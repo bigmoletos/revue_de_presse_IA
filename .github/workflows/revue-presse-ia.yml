@@ -3,7 +3,7 @@ name: Revue de Presse IA
 
 on:
   schedule:
-    - cron: '30 6 * * 1-5'
+    - cron: '30 5 * * 1-5'
   workflow_dispatch:
 
 permissions:
@@ -14,7 +14,7 @@ permissions:
 jobs:
   revue:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4

@@ -6,8 +6,18 @@ import os
 import subprocess
 import tempfile
 import shutil
-from datetime import date
+from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
+
+# Fuseau Paris
+try:
+    from zoneinfo import ZoneInfo
+    TZ_PARIS = ZoneInfo("Europe/Paris")
+except ImportError:
+    TZ_PARIS = timezone(timedelta(hours=1))
+
+def _today_paris() -> date:
+    return datetime.now(TZ_PARIS).date()
 
 
 def publish_to_pages(html_content: str, article_count: int) -> str | None:
@@ -22,8 +32,8 @@ def publish_to_pages(html_content: str, article_count: int) -> str | None:
         print("[PAGES] GITHUB_TOKEN manquant — skip")
         return None
 
-    today      = date.today().strftime("%Y-%m-%d")
-    today_fr   = date.today().strftime("%d/%m/%Y")
+    today      = _today_paris().strftime("%Y-%m-%d")
+    today_fr   = _today_paris().strftime("%d/%m/%Y")
     filename   = f"revue_ia_{today}.html"
     pages_url  = f"https://{repo.split('/')[0]}.github.io/{repo.split('/')[1]}/{filename}"
     index_url  = f"https://{repo.split('/')[0]}.github.io/{repo.split('/')[1]}/"

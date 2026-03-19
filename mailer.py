@@ -6,10 +6,22 @@ import smtplib
 import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta, timezone
 
 from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, MAIL_TO
 from scraper import detect_theme
+
+# Fuseau Paris (UTC+1 hiver / UTC+2 été) — datetime.now(TZ_PARIS) est toujours correct
+try:
+    from zoneinfo import ZoneInfo
+    TZ_PARIS = ZoneInfo("Europe/Paris")
+except ImportError:
+    # Python < 3.9 fallback : offset fixe UTC+1 (acceptable pour un cron matin)
+    TZ_PARIS = timezone(timedelta(hours=1))
+
+def _today_paris() -> date:
+    """Date du jour à Paris (pas UTC) — évite le décalage heure d'été."""
+    return datetime.now(TZ_PARIS).date()
 
 # Ordre d'affichage des thèmes
 THEME_ORDER = [
@@ -39,7 +51,7 @@ def _short_title(title: str) -> str:
 
 
 def build_html(articles, pages_url: str = ""):
-    today_label = date.today().strftime("%d/%m/%Y")
+    today_label = _today_paris().strftime("%d/%m/%Y")
     for art in articles:
         art["_theme"] = _assign_theme(art)
         art["_slug"]  = _short_title(art.get("title", ""))
@@ -213,8 +225,8 @@ def build_email_html(articles, pages_url: str = "") -> tuple[str, int]:
     Filtre sur les articles de la veille uniquement.
     Retourne (html, nb_articles).
     """
-    yesterday = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-    today_str  = date.today().strftime("%Y-%m-%d")
+    yesterday = (_today_paris() - timedelta(days=1)).strftime("%Y-%m-%d")
+    today_str  = _today_paris().strftime("%Y-%m-%d")
 
     # Garde veille + aujourd'hui (le cron tourne tôt le matin)
     recent = [
@@ -236,7 +248,7 @@ def build_email_html(articles, pages_url: str = "") -> tuple[str, int]:
             grouped[theme] = []
         grouped[theme].append(art)
 
-    today_label = date.today().strftime("%d/%m/%Y")
+    today_label = _today_paris().strftime("%d/%m/%Y")
     pages_btn = (
         f'<tr><td align="center" style="padding:16px 0 8px;">'
         f'<a href="{pages_url}" style="background:#7c6af7;color:#fff;padding:10px 24px;'
@@ -339,7 +351,7 @@ def send_email(articles, pages_url: str = ""):
 
     try:
         html, nb = build_email_html(articles, pages_url=pages_url)
-        today_label = date.today().strftime("%d/%m/%Y")
+        today_label = _today_paris().strftime("%d/%m/%Y")
         subject = f"Revue IA - {today_label} ({nb} nouveautés)"
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject

@@ -5,13 +5,22 @@ Utilise PowerShell WinRT directement — aucune dépendance Python externe.
 import os
 import subprocess
 from pathlib import Path
-from datetime import date
+from datetime import datetime, date, timedelta, timezone
+
+try:
+    from zoneinfo import ZoneInfo
+    _TZ_PARIS = ZoneInfo("Europe/Paris")
+except ImportError:
+    _TZ_PARIS = timezone(timedelta(hours=1))
+
+def _today_paris() -> date:
+    return datetime.now(_TZ_PARIS).date()
 
 
 def save_html_report(articles: list[dict]) -> Path:
     """Sauvegarde la revue en HTML dans ~/dev/revue_presse_ia/rapports/."""
     from mailer import build_html
-    today = date.today().strftime("%Y-%m-%d")
+    today = _today_paris().strftime("%Y-%m-%d")
     out_dir = Path(os.environ["USERPROFILE"]) / "dev" / "revue_presse_ia" / "rapports"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_file = out_dir / f"revue_{today}.html"
@@ -62,7 +71,7 @@ def deliver(articles: list[dict]) -> bool:
     try:
         html_path = save_html_report(articles)
         html_content = html_path.read_text(encoding="utf-8")
-        today = date.today().strftime("%d/%m/%Y")
+        today = _today_paris().strftime("%d/%m/%Y")
 
         # Publication Gist (optionnelle — silencieuse si pas de token)
         from gist_publisher import publish_gist

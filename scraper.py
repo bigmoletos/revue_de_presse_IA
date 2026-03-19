@@ -1,38 +1,178 @@
 """
 Collecte d'actualites IA + Hardware sans API payante.
 Sources : flux RSS + HN Algolia (pas de cle requise).
+Traduction FR 100% gratuite : MyMemory API (CI + local) + Ollama (local fallback).
 """
 import os
+import time
 import requests
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, quote
 
-# Traduction désactivée en CI (trop lente — centaines de requêtes HTTP)
-_CI = os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")
+# Traduction individuelle désactivée — on fait du batch après collecte
+def _translate(text: str) -> str:
+    return text
 
-if not _CI:
-    try:
-        from deep_translator import GoogleTranslator
-        def _translate(text: str) -> str:
-            if not text or len(text) < 10:
-                return text
-            try:
-                result = GoogleTranslator(source="auto", target="fr").translate(text[:500])
-                return result if result else text
-            except Exception:
-                return text
-        GoogleTranslator(source="auto", target="fr").translate("test")
-        print("  [TRANSLATE] Google Translate actif")
-    except Exception:
-        print("  [TRANSLATE] Google Translate indisponible")
-        def _translate(text: str) -> str:
-            return text
-else:
-    print("  [TRANSLATE] Désactivé en CI")
-    def _translate(text: str) -> str:
+
+# ── Config traduction gratuite ────────────────────────────────────────────
+_OLLAMA_URL   = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+_OLLAMA_MODEL = os.environ.get("OLLAMA_TRANSLATE_MODEL", "mistral:latest")
+# MyMemory : email optionnel pour passer de 5000 à 10000 mots/jour
+_MYMEMORY_EMAIL = os.environ.get("MYMEMORY_EMAIL", "")
+
+
+def _translate_one_mymemory(text: str) -> str:
+    """Traduit un texte via MyMemory (gratuit, sans clé, 5000 mots/jour)."""
+    if not text or len(text.strip()) < 5:
         return text
+    try:
+        params = {"q": text[:500], "langpair": "en|fr"}
+        if _MYMEMORY_EMAIL:
+            params["de"] = _MYMEMORY_EMAIL
+        resp = requests.get(
+            "https://api.mymemory.translated.net/get",
+            params=params,
+            timeout=8,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        translated = data.get("responseData", {}).get("translatedText", "")
+        # MyMemory renvoie le texte original si la traduction échoue
+        if translated and translated.upper() != text.upper():
+            return translated
+    except Exception:
+        pass
+    return text
+
+
+def _translate_via_mymemory(texts: list[str]) -> list[str] | None:
+    """
+    Traduit une liste via MyMemory en parallèle (max 10 workers).
+    Respecte un délai minimal pour éviter le rate-limit.
+    """
+    results = list(texts)
+    indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5]
+    if not indices:
+        return results
+
+    def _do(i):
+        # Petit délai aléatoire pour éviter les rafales
+        time.sleep(i * 0.15)
+        return i, _translate_one_mymemory(texts[i])
+
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        for i, translated in ex.map(_do, indices):
+            results[i] = translated
+
+    # Vérifier qu'au moins quelques traductions ont réussi
+    changed = sum(1 for i in indices if results[i] != texts[i])
+    if changed == 0:
+        return None
+    return results
+
+
+def _translate_via_ollama(texts: list[str]) -> list[str] | None:
+    """Traduit via Ollama local (mistral:latest) — fallback hors CI."""
+    numbered = "\n".join(f"{i+1}. {t}" for i, t in enumerate(texts))
+    prompt = (
+        f"Translate the following {len(texts)} texts to French. "
+        "Keep proper nouns, brand names, and technical terms (AI, LLM, GPU, API) unchanged. "
+        "Reply ONLY with a JSON array of translated strings, same order, no markdown.\n\n"
+        f"{numbered}"
+    )
+    try:
+        resp = requests.post(
+            f"{_OLLAMA_URL}/api/generate",
+            json={"model": _OLLAMA_MODEL, "prompt": prompt, "stream": False,
+                  "options": {"temperature": 0.1, "num_predict": 4096}},
+            timeout=120,
+        )
+        resp.raise_for_status()
+        raw = resp.json().get("response", "").strip()
+        # Extraire le JSON array
+        start, end = raw.find("["), raw.rfind("]")
+        if start != -1 and end != -1:
+            import json
+            result = json.loads(raw[start:end+1])
+            if isinstance(result, list) and len(result) == len(texts):
+                return result
+    except Exception as e:
+        print(f"  [TRANSLATE] Ollama erreur: {e}")
+    return None
+
+
+def translate_batch(texts: list[str]) -> list[str]:
+    """
+    Traduit une liste EN→FR. Gratuit, sans clé.
+    Priorité : CTranslate2 GPU local → MyMemory (CI + local) → Ollama local.
+    """
+    indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5]
+    if not indices:
+        return texts
+
+    to_translate = [texts[i][:400] for i in indices]
+
+    # 1. CTranslate2 local (GPU NVIDIA — ultra rapide, hors CI)
+    try:
+        from translator_local import translate_local, is_available
+        if is_available():
+            result = translate_local(to_translate)
+            if result:
+                print(f"  [TRANSLATE] OK via CTranslate2 GPU ({len(to_translate)} textes)")
+                out = list(texts)
+                for pos, idx in enumerate(indices):
+                    out[idx] = result[pos] if result[pos] else texts[idx]
+                return out
+    except ImportError:
+        pass
+
+    # 2. MyMemory (CI + local fallback — gratuit, sans clé)
+    # 3. Ollama local (fallback final)
+    for name, fn in [("MyMemory", _translate_via_mymemory),
+                     ("Ollama",   _translate_via_ollama)]:
+        result = fn(to_translate)
+        if result:
+            print(f"  [TRANSLATE] OK via {name} ({len(to_translate)} textes)")
+            out = list(texts)
+            for pos, idx in enumerate(indices):
+                out[idx] = result[pos] if result[pos] else texts[idx]
+            return out
+
+    print("  [TRANSLATE] Tous les backends ont échoué — textes non traduits")
+    return texts
+
+
+def translate_articles(articles: list[dict]) -> list[dict]:
+    """
+    Traduit titres et résumés en batch de 15 (limite MyMemory ~500 chars/texte).
+    100% gratuit — MyMemory en CI, Ollama en local si MyMemory échoue.
+    """
+    if not articles:
+        return articles
+
+    BATCH = 15
+    titles    = [a.get("title", "")   for a in articles]
+    summaries = [a.get("summary", "") for a in articles]
+
+    print(f"  [TRANSLATE] {len(articles)} articles via MyMemory (batch={BATCH})...")
+
+    def _run_batches(texts: list[str]) -> list[str]:
+        result = list(texts)
+        for start in range(0, len(texts), BATCH):
+            result[start:start + BATCH] = translate_batch(texts[start:start + BATCH])
+        return result
+
+    translated_titles    = _run_batches(titles)
+    translated_summaries = _run_batches(summaries)
+
+    for i, art in enumerate(articles):
+        art["title"]   = translated_titles[i]
+        art["summary"] = translated_summaries[i]
+
+    print("  [TRANSLATE] Terminé")
+    return articles
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; RevuePresse/1.0)"}
 
@@ -345,4 +485,8 @@ def collect_news() -> list[dict]:
         unique.append(art)
 
     print(f"  → Total: {len(unique)} articles uniques")
+
+    # Traduction batch FR gratuite via MyMemory (après déduplication)
+    unique = translate_articles(unique)
+
     return unique

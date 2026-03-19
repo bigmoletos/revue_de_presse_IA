@@ -6,10 +6,19 @@ Nécessite GITHUB_TOKEN dans .env (token avec scope 'gist').
 import json
 import os
 import requests
-from datetime import date
+from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
 
 from config import GITHUB_TOKEN, GIST_PUBLIC
+
+try:
+    from zoneinfo import ZoneInfo
+    _TZ_PARIS = ZoneInfo("Europe/Paris")
+except ImportError:
+    _TZ_PARIS = timezone(timedelta(hours=1))
+
+def _today_paris() -> date:
+    return datetime.now(_TZ_PARIS).date()
 
 _GIST_ID_FILE = Path(os.environ.get("USERPROFILE", os.environ.get("HOME", "/tmp"))) / "dev" / "revue_presse_ia" / ".gist_ids.json"
 _API = "https://api.github.com"
@@ -38,7 +47,7 @@ def publish_gist(html_content: str, article_count: int) -> str | None:
         print("[GIST] GITHUB_TOKEN non défini — skip publication")
         return None
 
-    today = date.today().strftime("%Y-%m-%d")
+    today = _today_paris().strftime("%Y-%m-%d")
     filename = f"revue_ia_{today}.html"
     description = f"Revue IA — {today} ({article_count} articles)"
 

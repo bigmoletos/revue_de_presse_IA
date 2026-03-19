@@ -6,7 +6,17 @@ Collecte → HTML → GitHub Pages (branche gh-pages).
 import os
 import sys
 from pathlib import Path
-from datetime import date
+from datetime import datetime, date, timedelta, timezone
+
+# Fuseau Paris — datetime.now(TZ_PARIS).date() est toujours correct (heure d'été incluse)
+try:
+    from zoneinfo import ZoneInfo
+    TZ_PARIS = ZoneInfo("Europe/Paris")
+except ImportError:
+    TZ_PARIS = timezone(timedelta(hours=1))
+
+def _today_paris() -> date:
+    return datetime.now(TZ_PARIS).date()
 
 # Charger le .env local si présent (dev local), sinon utiliser les vars CI
 _env = Path(__file__).parent / ".env"
@@ -34,7 +44,7 @@ def main():
 
     # 2. Génération HTML
     html = build_html(articles)
-    today = date.today().strftime("%Y-%m-%d")
+    today = _today_paris().strftime("%Y-%m-%d")
 
     # 3. Sauvegarde locale (optionnelle en CI)
     out_dir = Path(__file__).parent / "rapports"
