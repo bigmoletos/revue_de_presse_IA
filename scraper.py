@@ -4,15 +4,30 @@ Sources : flux RSS + HN Algolia (pas de cle requise).
 Traduction FR 100% gratuite : MyMemory API (CI + local) + Ollama (local fallback).
 """
 import os
+import re
 import time
 import requests
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from html import unescape
 from urllib.parse import quote_plus, quote
 
 # Traduction individuelle désactivée — on fait du batch après collecte
 def _translate(text: str) -> str:
+    return text
+
+
+def _clean_html(text: str) -> str:
+    """Supprime les balises HTML et décode les entités pour obtenir du texte brut."""
+    if not text:
+        return ""
+    # Supprimer les balises HTML
+    text = re.sub(r"<[^>]+>", " ", text)
+    # Décoder les entités HTML (&amp; &lt; &#39; etc.)
+    text = unescape(text)
+    # Normaliser les espaces
+    text = re.sub(r"\s+", " ", text).strip()
     return text
 
 
@@ -359,23 +374,23 @@ def _parse_feed(root, name: str, filtered: bool, max_items: int) -> list[dict]:
     items = []
 
     for item in root.findall(".//item"):
-        title = (item.findtext("title") or "").strip()
+        title = _clean_html((item.findtext("title") or "").strip())
         link  = (item.findtext("link")  or "").strip()
-        desc  = (item.findtext("description") or "").strip()
+        desc  = _clean_html((item.findtext("description") or "").strip())
         pub   = _normalize_date(item.findtext("pubDate") or "")
         if not filtered or _is_relevant(title + " " + desc):
-            items.append({"title": _translate(title), "link": link,
-                          "summary": _translate(desc[:300]), "date": pub, "source": name})
+            items.append({"title": title, "link": link,
+                          "summary": desc[:400], "date": pub, "source": name})
 
     for entry in root.findall("atom:entry", ns):
-        title   = (entry.findtext("atom:title", namespaces=ns) or "").strip()
+        title   = _clean_html((entry.findtext("atom:title", namespaces=ns) or "").strip())
         link_el = entry.find("atom:link", ns)
         link    = link_el.get("href", "") if link_el is not None else ""
-        summary = (entry.findtext("atom:summary", namespaces=ns) or "").strip()
+        summary = _clean_html((entry.findtext("atom:summary", namespaces=ns) or "").strip())
         pub     = _normalize_date(entry.findtext("atom:updated", namespaces=ns) or "")
         if not filtered or _is_relevant(title + " " + summary):
-            items.append({"title": _translate(title), "link": link,
-                          "summary": _translate(summary[:300]), "date": pub, "source": name})
+            items.append({"title": title, "link": link,
+                          "summary": summary[:400], "date": pub, "source": name})
 
     items.sort(key=lambda x: _parse_date(x["date"]), reverse=True)
     return items[:max_items]
@@ -400,11 +415,11 @@ def fetch_hn_algolia(query: str, max_items: int = 8) -> list[dict]:
         hits = resp.json().get("hits", [])
         results = []
         for h in hits:
-            title = (h.get("title") or "").strip()
+            title = _clean_html((h.get("title") or "").strip())
             link  = h.get("url") or f"https://news.ycombinator.com/item?id={h.get('objectID','')}"
             if title:
                 results.append({
-                    "title": _translate(title),
+                    "title": title,
                     "link": link,
                     "summary": "",
                     "date": _normalize_date(h.get("created_at", "")),

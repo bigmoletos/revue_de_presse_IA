@@ -271,7 +271,7 @@ def build_email_html(articles, pages_url: str = "") -> tuple[str, int]:
             slug    = _short_title(title)
             summary_row = (
                 f'<tr><td style="padding:0 16px 10px;color:#8892a4;font-size:13px;line-height:1.5;">'
-                f'{summary[:200]}{"…" if len(summary) > 200 else ""}</td></tr>'
+                f'{summary[:300]}{"…" if len(summary) > 300 else ""}</td></tr>'
             ) if summary else ""
             rows += f"""
         <tr>
