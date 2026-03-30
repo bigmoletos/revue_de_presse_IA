@@ -64,28 +64,25 @@ def _translate_one_mymemory(text: str) -> str:
 
 def _translate_via_mymemory(texts: list[str]) -> list[str] | None:
     """
-    Traduit une liste via MyMemory en parallèle (max 10 workers).
-    Respecte un délai minimal pour éviter le rate-limit.
+    Traduit une liste via MyMemory séquentiellement avec délai fixe.
+    Séquentiel pour éviter le rate-limit (5000 mots/jour, ~1 req/s conseillé).
     """
     results = list(texts)
     indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5]
     if not indices:
         return results
 
-    def _do(i):
-        # Petit délai aléatoire pour éviter les rafales
-        time.sleep(i * 0.15)
-        return i, _translate_one_mymemory(texts[i])
+    ok = 0
+    for pos, i in enumerate(indices):
+        if pos > 0:
+            time.sleep(0.3)  # délai fixe entre requêtes
+        translated = _translate_one_mymemory(texts[i])
+        results[i] = translated
+        if translated != texts[i]:
+            ok += 1
 
-    with ThreadPoolExecutor(max_workers=8) as ex:
-        for i, translated in ex.map(_do, indices):
-            results[i] = translated
-
-    # Vérifier qu'au moins quelques traductions ont réussi
-    changed = sum(1 for i in indices if results[i] != texts[i])
-    if changed == 0:
-        return None
-    return results
+    # Retourner même si seulement quelques traductions ont réussi
+    return results if ok > 0 else None
 
 
 def _translate_via_ollama(texts: list[str]) -> list[str] | None:
@@ -171,7 +168,7 @@ def translate_articles(articles: list[dict]) -> list[dict]:
     titles    = [a.get("title", "")   for a in articles]
     summaries = [a.get("summary", "") for a in articles]
 
-    print(f"  [TRANSLATE] {len(articles)} articles via MyMemory (batch={BATCH})...")
+    print(f"  [TRANSLATE] {len(articles)} articles (titres + résumés, batch={BATCH})...")
 
     def _run_batches(texts: list[str]) -> list[str]:
         result = list(texts)
