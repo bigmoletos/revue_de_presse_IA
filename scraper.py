@@ -38,6 +38,19 @@ _OLLAMA_MODEL = os.environ.get("OLLAMA_TRANSLATE_MODEL", "mistral:latest")
 _MYMEMORY_EMAIL = os.environ.get("MYMEMORY_EMAIL", "")
 
 
+def _is_likely_french(text: str) -> bool:
+    """Détecte si un texte est probablement déjà en français (heuristique simple)."""
+    if not text or len(text) < 20:
+        return False
+    t = text.lower()
+    fr_markers = [" le ", " la ", " les ", " des ", " une ", " est ", " dans ",
+                  " pour ", " avec ", " sur ", " qui ", " que ", " pas ",
+                  " sont ", " cette ", " mais ", " aussi ", " plus ", " très ",
+                  " être ", " faire ", " peut ", " tout ", " comme "]
+    hits = sum(1 for m in fr_markers if m in t)
+    return hits >= 3
+
+
 def _translate_one_mymemory(text: str) -> str:
     """Traduit un texte via MyMemory (gratuit, sans clé, 5000 mots/jour)."""
     if not text or len(text.strip()) < 5:
@@ -53,12 +66,23 @@ def _translate_one_mymemory(text: str) -> str:
         )
         resp.raise_for_status()
         data = resp.json()
+        status = data.get("responseStatus", 0)
         translated = data.get("responseData", {}).get("translatedText", "")
+
+        # Status 429 = rate limit, 403 = quota dépassé
+        if status in (429, 403):
+            print(f"  [MYMEMORY] Rate limit atteint (status={status})")
+            return text
+
         # MyMemory renvoie le texte original si la traduction échoue
         if translated and translated.upper() != text.upper():
             return translated
-    except Exception:
-        pass
+        # Vérifier si c'est un message d'erreur MyMemory
+        if "MYMEMORY WARNING" in (translated or "").upper():
+            print(f"  [MYMEMORY] Quota warning: {translated[:80]}")
+            return text
+    except Exception as e:
+        print(f"  [MYMEMORY] Erreur: {e}")
     return text
 
 
@@ -120,9 +144,9 @@ def translate_batch(texts: list[str]) -> list[str]:
     Traduit une liste EN→FR. Gratuit, sans clé.
     Priorité : CTranslate2 GPU local → MyMemory (CI + local) → Ollama local.
     """
-    indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5]
+    indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5 and not _is_likely_french(t)]
     if not indices:
-        return texts
+        return texts  # Tout est déjà en français ou vide
 
     to_translate = [texts[i][:400] for i in indices]
 
@@ -158,32 +182,38 @@ def translate_batch(texts: list[str]) -> list[str]:
 
 def translate_articles(articles: list[dict]) -> list[dict]:
     """
-    Traduit titres et résumés en batch de 15 (limite MyMemory ~500 chars/texte).
-    100% gratuit — MyMemory en CI, Ollama en local si MyMemory échoue.
+    Traduit titres et résumés en batch.
+    Intercale titres et résumés pour répartir le quota MyMemory équitablement.
+    100% gratuit — CTranslate2 GPU local → MyMemory en CI → Ollama local.
     """
     if not articles:
         return articles
 
-    BATCH = 15
-    titles    = [a.get("title", "")   for a in articles]
-    summaries = [a.get("summary", "") for a in articles]
+    BATCH = 20
 
-    print(f"  [TRANSLATE] {len(articles)} articles (titres + résumés, batch={BATCH})...")
+    # Intercaler titre/résumé pour que le quota soit partagé
+    # Format: [(index_article, "title"|"summary", texte), ...]
+    all_texts = []
+    for i, a in enumerate(articles):
+        all_texts.append((i, "title", a.get("title", "")))
+        all_texts.append((i, "summary", a.get("summary", "")))
 
-    def _run_batches(texts: list[str]) -> list[str]:
-        result = list(texts)
-        for start in range(0, len(texts), BATCH):
-            result[start:start + BATCH] = translate_batch(texts[start:start + BATCH])
-        return result
+    # Traduire par batch
+    translated = {}
+    for start in range(0, len(all_texts), BATCH):
+        batch = all_texts[start:start + BATCH]
+        texts_only = [t[2] for t in batch]
+        result = translate_batch(texts_only)
+        for (idx, field, _orig), trad in zip(batch, result):
+            translated[(idx, field)] = trad
 
-    translated_titles    = _run_batches(titles)
-    translated_summaries = _run_batches(summaries)
-
+    # Réassigner
     for i, art in enumerate(articles):
-        art["title"]   = translated_titles[i]
-        art["summary"] = translated_summaries[i]
+        art["title"]   = translated.get((i, "title"),   art.get("title", ""))
+        art["summary"] = translated.get((i, "summary"), art.get("summary", ""))
 
-    print("  [TRANSLATE] Terminé")
+    n_titles = sum(1 for i in range(len(articles)) if translated.get((i, "title"), "") != articles[i].get("title", ""))
+    print(f"  [TRANSLATE] Terminé — {len(articles)} articles traités")
     return articles
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; RevuePresse/1.0)"}
@@ -209,6 +239,8 @@ RSS_FEEDS_FILTERED = [
 
 # ── Flux RSS non filtrés (tout passe — sources 100% IA/tech) ─────────────
 RSS_FEEDS_UNFILTERED = [
+    # Blogs FR tech/IA
+    ("Korben",                  "https://korben.info/feed"),
     # Lancements produits IA — Product Hunt top AI du jour
     ("Product Hunt — AI",       "https://www.producthunt.com/feed?category=artificial-intelligence"),
     # TechCrunch IA
