@@ -182,8 +182,8 @@ details[open] summary.card-summary-toggle::before{{transform:rotate(90deg)}}
   </select>
   {gpu_btn}
   {pages_link}
-  <div id="extSearch" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;gap:8px;flex-wrap:wrap;z-index:99" id="extSearchBar">
-    <span style="font-size:.78rem;color:var(--muted);align-self:center;">Chercher aussi sur :</span>
+  <div id="extSearchBar" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;gap:8px;flex-wrap:wrap;z-index:99;align-items:center;">
+    <span style="font-size:.78rem;color:var(--muted);">Chercher aussi sur :</span>
     <a id="lnkReddit" href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#ff4500;color:#fff;text-decoration:none;">Reddit</a>
     <a id="lnkHN"     href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#ff6600;color:#fff;text-decoration:none;">Hacker News</a>
     <a id="lnkGoogle" href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#4285f4;color:#fff;text-decoration:none;">Google</a>
