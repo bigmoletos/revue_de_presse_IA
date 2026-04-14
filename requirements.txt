@@ -1,5 +1,6 @@
 requests>=2.32
 python-dotenv>=1.0
+deep-translator>=1.11
 
 # Traduction locale GPU (optionnel — local uniquement, pas en CI)
 # pip install ctranslate2 sentencepiece transformers torch

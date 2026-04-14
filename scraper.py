@@ -86,6 +86,78 @@ def _translate_one_mymemory(text: str) -> str:
     return text
 
 
+def _translate_via_google(texts: list[str]) -> list[str] | None:
+    """
+    Traduit via Google Translate (deep-translator, sans clé, sans quota strict).
+    Batch de 5000 chars max par requête.
+    """
+    try:
+        from deep_translator import GoogleTranslator
+    except ImportError:
+        return None
+
+    results = list(texts)
+    indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5]
+    if not indices:
+        return results
+
+    try:
+        translator = GoogleTranslator(source="en", target="fr")
+        ok = 0
+        for i in indices:
+            translated = translator.translate(texts[i][:500])
+            if translated and translated != texts[i]:
+                results[i] = translated
+                ok += 1
+        if ok > 0:
+            return results
+    except Exception as e:
+        print(f"  [GOOGLE] Erreur: {e}")
+    return None
+
+
+def _translate_via_libretranslate(texts: list[str]) -> list[str] | None:
+    """
+    Traduit via LibreTranslate (instance publique gratuite, sans clé).
+    Plusieurs instances publiques en fallback.
+    """
+    instances = [
+        "https://libretranslate.com",
+        "https://translate.argosopentech.com",
+        "https://translate.terraprint.co",
+    ]
+    results = list(texts)
+    indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5]
+    if not indices:
+        return results
+
+    for base_url in instances:
+        try:
+            ok = 0
+            for i in indices:
+                resp = requests.post(
+                    f"{base_url}/translate",
+                    json={"q": texts[i][:500], "source": "en", "target": "fr", "format": "text"},
+                    timeout=10,
+                    headers={"Content-Type": "application/json"},
+                )
+                if resp.status_code == 200:
+                    translated = resp.json().get("translatedText", "")
+                    if translated and translated != texts[i]:
+                        results[i] = translated
+                        ok += 1
+                elif resp.status_code in (429, 403):
+                    break  # rate limit sur cette instance
+                time.sleep(0.1)
+            if ok > 0:
+                print(f"  [LIBRETRANSLATE] OK via {base_url} ({ok}/{len(indices)} textes)")
+                return results
+        except Exception as e:
+            print(f"  [LIBRETRANSLATE] {base_url} indisponible: {e}")
+            continue
+    return None
+
+
 def _translate_via_mymemory(texts: list[str]) -> list[str] | None:
     """
     Traduit une liste via MyMemory séquentiellement avec délai fixe.
@@ -164,10 +236,14 @@ def translate_batch(texts: list[str]) -> list[str]:
     except ImportError:
         pass
 
-    # 2. MyMemory (CI + local fallback — gratuit, sans clé)
-    # 3. Ollama local (fallback final)
-    for name, fn in [("MyMemory", _translate_via_mymemory),
-                     ("Ollama",   _translate_via_ollama)]:
+    # 2. Google Translate (deep-translator, sans clé — CI + local)
+    # 3. LibreTranslate (instances publiques — sans quota)
+    # 4. MyMemory (CI + local fallback — gratuit, sans clé)
+    # 5. Ollama local (fallback final)
+    for name, fn in [("Google",         _translate_via_google),
+                     ("LibreTranslate", _translate_via_libretranslate),
+                     ("MyMemory",       _translate_via_mymemory),
+                     ("Ollama",         _translate_via_ollama)]:
         result = fn(to_translate)
         if result:
             print(f"  [TRANSLATE] OK via {name} ({len(to_translate)} textes)")
