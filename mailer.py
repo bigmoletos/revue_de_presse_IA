@@ -71,6 +71,26 @@ def build_html(articles, pages_url: str = ""):
             grouped[theme] = []
         grouped[theme].append(art)
 
+    # Sources présentes — pour les boutons de filtre
+    sources_present = sorted({a.get("source", "").split(" — ")[0].split(" — ")[0] for a in articles if a.get("source")})
+    # Grouper : Reddit, Hacker News, Dev.to, puis le reste
+    def _source_group(s):
+        sl = s.lower()
+        if "reddit" in sl: return "Reddit"
+        if "hacker" in sl or sl == "hn": return "Hacker News"
+        if "dev.to" in sl: return "Dev.to"
+        return s
+
+    source_groups = {}
+    for a in articles:
+        g = _source_group(a.get("source", ""))
+        source_groups[g] = source_groups.get(g, 0) + 1
+
+    source_btns = "\n".join(
+        f'<button class="src-btn" data-src="{g}" onclick="filterSource(this)">{g} <span class="badge">{c}</span></button>'
+        for g, c in sorted(source_groups.items(), key=lambda x: -x[1])
+    )
+
     # Nav thèmes
     nav_links = "\n".join(
         f'<a href="#{t.replace(" ", "-")}" class="nav-link">{t} <span class="badge">{len(grouped[t])}</span></a>'
@@ -98,9 +118,10 @@ def build_html(articles, pages_url: str = ""):
             art_date = art.get("date", "")
             summary_html = f"<p class='card-summary'>{summary}</p>" if summary else ""
             date_html    = f"<span class='art-date'>{art_date}</span>" if art_date else ""
+            src_group    = _source_group(source)
             # Article collapsé par défaut avec slug comme label visible
             cards += f"""
-        <details class="card" data-date="{art_date}" data-text="{title.lower()} {summary.lower()}" data-theme="{theme}">
+        <details class="card" data-date="{art_date}" data-text="{title.lower()} {summary.lower()}" data-theme="{theme}" data-source="{src_group}">
           <summary class="card-summary-toggle">
             <span class="card-slug">{slug}</span>
             <span class="card-meta-inline">
@@ -140,6 +161,9 @@ header h1{{font-size:1.05rem;color:var(--accent);white-space:nowrap}}
 #dateFilter{{padding:5px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem}}
 .gpu-btn{{padding:5px 10px;background:transparent;border:1px solid var(--gpu);border-radius:6px;color:var(--gpu);font-size:.82rem;cursor:pointer}}
 .gpu-btn:hover,.gpu-btn.active{{background:var(--gpu);color:#000}}
+.src-btn{{padding:3px 10px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:.78rem;cursor:pointer}}
+.src-btn:hover{{border-color:var(--accent);color:var(--accent)}}
+.src-btn.active{{background:var(--accent);color:#fff;border-color:var(--accent)}}
 .pages-link{{font-size:.82rem;color:var(--accent);text-decoration:none;white-space:nowrap}}
 .pages-link:hover{{text-decoration:underline}}
 nav{{background:var(--surface);border-bottom:1px solid var(--border);padding:7px 24px;display:flex;gap:10px;flex-wrap:wrap}}
@@ -192,15 +216,27 @@ details[open] summary.card-summary-toggle::before{{transform:rotate(90deg)}}
   </div>
 </header>
 <nav>{nav_links}</nav>
+<div id="srcBar" style="background:var(--surface);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+  <span style="font-size:.75rem;color:var(--muted);">Source :</span>
+  <button class="src-btn active" data-src="" onclick="filterSource(this)">Toutes</button>
+  {source_btns}
+</div>
 <main id="main">
   {sections_html}
   <p id="noResults" class="no-results hidden">Aucun article ne correspond.</p>
 </main>
 <script>
 var gpuActive=false;
+var activeSrc='';
 function filterGPU(){{
   gpuActive=!gpuActive;
   document.querySelector('.gpu-btn').classList.toggle('active',gpuActive);
+  applyFilters();
+}}
+function filterSource(btn){{
+  activeSrc=btn.dataset.src||'';
+  document.querySelectorAll('.src-btn').forEach(function(b){{b.classList.remove('active');}});
+  btn.classList.add('active');
   applyFilters();
 }}
 function applyFilters(){{
@@ -212,7 +248,8 @@ function applyFilters(){{
     var matchText=!q||(card.dataset.text||'').includes(q);
     var matchDate=!d||card.dataset.date===d;
     var matchGpu=!gpuActive||(card.dataset.theme||'').includes('GPU');
-    var show=matchText&&matchDate&&matchGpu;
+    var matchSrc=!activeSrc||(card.dataset.source||'')=== activeSrc;
+    var show=matchText&&matchDate&&matchGpu&&matchSrc;
     card.classList.toggle('hidden',!show);
     if(show)visible++;
   }});
