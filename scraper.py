@@ -235,6 +235,21 @@ RSS_FEEDS_FILTERED = [
     ("OpenAI Blog",           "https://openai.com/blog/rss/"),
     ("Anthropic News",        "https://www.anthropic.com/news/rss"),
     ("Mistral AI Blog",       "https://mistral.ai/news/rss"),
+    # Reddit — subreddits IA (filtrés par keywords)
+    ("Reddit — MachineLearning", "https://www.reddit.com/r/MachineLearning/.rss"),
+    ("Reddit — LocalLLaMA",      "https://www.reddit.com/r/LocalLLaMA/.rss"),
+    ("Reddit — ArtificialIntel", "https://www.reddit.com/r/artificial/.rss"),
+    ("Reddit — ChatGPT",         "https://www.reddit.com/r/ChatGPT/.rss"),
+    ("Reddit — Singularity",     "https://www.reddit.com/r/singularity/.rss"),
+    ("Reddit — vibecoding",      "https://www.reddit.com/r/vibecoding/.rss"),
+    ("Reddit — ClaudeAI",        "https://www.reddit.com/r/ClaudeAI/.rss"),
+    ("Reddit — OpenAI",          "https://www.reddit.com/r/OpenAI/.rss"),
+    ("Reddit — Gemini",          "https://www.reddit.com/r/Gemini/.rss"),
+    ("Reddit — CursorAI",        "https://www.reddit.com/r/cursor/.rss"),
+    ("Reddit — GithubCopilot",   "https://www.reddit.com/r/GithubCopilot/.rss"),
+    ("Reddit — AIAssistants",    "https://www.reddit.com/r/AIAssistants/.rss"),
+    ("Reddit — LLMDevs",         "https://www.reddit.com/r/LLMDevs/.rss"),
+    ("Reddit — Ollama",          "https://www.reddit.com/r/ollama/.rss"),
 ]
 
 # ── Flux RSS non filtrés (tout passe — sources 100% IA/tech) ─────────────
@@ -415,7 +430,10 @@ def _parse_feed(root, name: str, filtered: bool, max_items: int) -> list[dict]:
         title   = _clean_html((entry.findtext("atom:title", namespaces=ns) or "").strip())
         link_el = entry.find("atom:link", ns)
         link    = link_el.get("href", "") if link_el is not None else ""
+        # atom:summary en priorité, atom:content en fallback (Reddit)
         summary = _clean_html((entry.findtext("atom:summary", namespaces=ns) or "").strip())
+        if not summary:
+            summary = _clean_html((entry.findtext("atom:content", namespaces=ns) or "").strip())
         pub     = _normalize_date(entry.findtext("atom:updated", namespaces=ns) or "")
         if not filtered or _is_relevant(title + " " + summary):
             items.append({"title": title, "link": link,
