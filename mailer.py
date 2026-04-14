@@ -133,7 +133,7 @@ def build_html(articles, pages_url: str = ""):
 :root{{--bg:#0f1117;--surface:#1a1d27;--border:#2a2d3a;--accent:#7c6af7;--text:#e2e8f0;--muted:#8892a4;--green:#4ade80;--card-bg:#1e2130;--gpu:#f59e0b}}
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif}}
-header{{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}}
+header{{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative}}
 header h1{{font-size:1.05rem;color:var(--accent);white-space:nowrap}}
 #count{{font-size:.82rem;color:var(--muted)}}
 #search{{flex:1;min-width:160px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem}}
@@ -182,6 +182,14 @@ details[open] summary.card-summary-toggle::before{{transform:rotate(90deg)}}
   </select>
   {gpu_btn}
   {pages_link}
+  <div id="extSearch" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;gap:8px;flex-wrap:wrap;z-index:99" id="extSearchBar">
+    <span style="font-size:.78rem;color:var(--muted);align-self:center;">Chercher aussi sur :</span>
+    <a id="lnkReddit" href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#ff4500;color:#fff;text-decoration:none;">Reddit</a>
+    <a id="lnkHN"     href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#ff6600;color:#fff;text-decoration:none;">Hacker News</a>
+    <a id="lnkGoogle" href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#4285f4;color:#fff;text-decoration:none;">Google</a>
+    <a id="lnkGH"     href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#238636;color:#fff;text-decoration:none;">GitHub</a>
+    <a id="lnkYT"     href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#cc0000;color:#fff;text-decoration:none;">YouTube</a>
+  </div>
 </header>
 <nav>{nav_links}</nav>
 <main id="main">
@@ -213,6 +221,19 @@ function applyFilters(){{
   }});
   document.getElementById('count').textContent=visible+' article'+(visible>1?'s':'');
   document.getElementById('noResults').classList.toggle('hidden',visible>0);
+  // Liens recherche externe
+  var bar=document.getElementById('extSearchBar');
+  if(q.length>1){{
+    var enc=encodeURIComponent(q);
+    document.getElementById('lnkReddit').href='https://www.reddit.com/search/?q='+enc+'&sort=new&t=week';
+    document.getElementById('lnkHN').href='https://hn.algolia.com/?q='+enc+'&dateRange=pastWeek';
+    document.getElementById('lnkGoogle').href='https://www.google.com/search?q='+enc+'+AI+site:reddit.com+OR+site:github.com+OR+site:arxiv.org';
+    document.getElementById('lnkGH').href='https://github.com/search?q='+enc+'&type=repositories&s=updated';
+    document.getElementById('lnkYT').href='https://www.youtube.com/results?search_query='+enc+'&sp=EgIIAQ%253D%253D';
+    bar.style.display='flex';
+  }} else {{
+    bar.style.display='none';
+  }}
 }}
 </script>
 </body>
