@@ -71,15 +71,18 @@ def build_html(articles, pages_url: str = ""):
             grouped[theme] = []
         grouped[theme].append(art)
 
-    # Sources présentes — pour les boutons de filtre
-    sources_present = sorted({a.get("source", "").split(" — ")[0].split(" — ")[0] for a in articles if a.get("source")})
-    # Grouper : Reddit, Hacker News, Dev.to, puis le reste
+    # Grouper les sources : Reddit, Hacker News, Dev.to, Korben, puis le reste
     def _source_group(s):
         sl = s.lower()
         if "reddit" in sl: return "Reddit"
-        if "hacker" in sl or sl == "hn": return "Hacker News"
+        if "hacker" in sl: return "Hacker News"
         if "dev.to" in sl: return "Dev.to"
-        return s
+        if "korben" in sl: return "Korben"
+        if "hugging" in sl: return "Hugging Face"
+        if "techcrunch" in sl: return "TechCrunch"
+        if "venturebeat" in sl: return "VentureBeat"
+        if "verge" in sl: return "The Verge"
+        return s.split(" — ")[0].strip()
 
     source_groups = {}
     for a in articles:
@@ -87,20 +90,18 @@ def build_html(articles, pages_url: str = ""):
         source_groups[g] = source_groups.get(g, 0) + 1
 
     source_btns = "\n".join(
-        f'<button class="src-btn" data-src="{g}" onclick="filterSource(this)">{g} <span class="badge">{c}</span></button>'
+        f'<button class="tag-btn" data-filter="src" data-val="{g}" onclick="toggleFilter(this)">'
+        f'{g} <span class="badge">{c}</span></button>'
         for g, c in sorted(source_groups.items(), key=lambda x: -x[1])
     )
 
-    # Nav thèmes
-    nav_links = "\n".join(
-        f'<a href="#{t.replace(" ", "-")}" class="nav-link">{t} <span class="badge">{len(grouped[t])}</span></a>'
+    theme_btns = "\n".join(
+        f'<button class="tag-btn" data-filter="theme" data-val="{t}" onclick="toggleFilter(this)">'
+        f'{t} <span class="badge">{len(grouped[t])}</span></button>'
         for t in THEME_ORDER if grouped.get(t)
     )
 
-    # Filtre GPU rapide
-    gpu_btn = '<button class="gpu-btn" onclick="filterGPU()">🖥 GPU / NVIDIA</button>'
-
-    pages_link = f'<a href="{pages_url}" target="_blank" class="pages-link">📄 Voir sur GitHub Pages</a>' if pages_url else ""
+    pages_link = f'<a href="{pages_url}" target="_blank" class="pages-link">📄 Archive</a>' if pages_url else ""
 
     sections_html = ""
     for theme in THEME_ORDER:
@@ -116,12 +117,11 @@ def build_html(articles, pages_url: str = ""):
             summary  = art.get("summary", "")
             source   = art.get("source", "")
             art_date = art.get("date", "")
+            src_grp  = _source_group(source)
             summary_html = f"<p class='card-summary'>{summary}</p>" if summary else ""
             date_html    = f"<span class='art-date'>{art_date}</span>" if art_date else ""
-            src_group    = _source_group(source)
-            # Article collapsé par défaut avec slug comme label visible
             cards += f"""
-        <details class="card" data-date="{art_date}" data-text="{title.lower()} {summary.lower()}" data-theme="{theme}" data-source="{src_group}">
+        <details class="card" data-date="{art_date}" data-text="{title.lower()} {summary.lower()}" data-theme="{theme}" data-src="{src_grp}">
           <summary class="card-summary-toggle">
             <span class="card-slug">{slug}</span>
             <span class="card-meta-inline">
@@ -154,22 +154,22 @@ def build_html(articles, pages_url: str = ""):
 :root{{--bg:#0f1117;--surface:#1a1d27;--border:#2a2d3a;--accent:#7c6af7;--text:#e2e8f0;--muted:#8892a4;--green:#4ade80;--card-bg:#1e2130;--gpu:#f59e0b}}
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif}}
-header{{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative}}
+header{{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}}
 header h1{{font-size:1.05rem;color:var(--accent);white-space:nowrap}}
 #count{{font-size:.82rem;color:var(--muted)}}
-#search{{flex:1;min-width:160px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem}}
+#search{{flex:1;min-width:180px;padding:6px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem}}
+#search:focus{{outline:none;border-color:var(--accent)}}
 #dateFilter{{padding:5px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem}}
-.gpu-btn{{padding:5px 10px;background:transparent;border:1px solid var(--gpu);border-radius:6px;color:var(--gpu);font-size:.82rem;cursor:pointer}}
-.gpu-btn:hover,.gpu-btn.active{{background:var(--gpu);color:#000}}
-.src-btn{{padding:3px 10px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:.78rem;cursor:pointer}}
-.src-btn:hover{{border-color:var(--accent);color:var(--accent)}}
-.src-btn.active{{background:var(--accent);color:#fff;border-color:var(--accent)}}
 .pages-link{{font-size:.82rem;color:var(--accent);text-decoration:none;white-space:nowrap}}
 .pages-link:hover{{text-decoration:underline}}
-nav{{background:var(--surface);border-bottom:1px solid var(--border);padding:7px 24px;display:flex;gap:10px;flex-wrap:wrap}}
-.nav-link{{color:var(--muted);text-decoration:none;font-size:.8rem;padding:3px 8px;border-radius:4px;border:1px solid var(--border)}}
-.nav-link:hover{{color:var(--accent);border-color:var(--accent)}}
-.badge{{background:var(--border);border-radius:10px;padding:1px 6px;font-size:.75rem}}
+.filter-bar{{background:var(--surface);border-bottom:1px solid var(--border);padding:7px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
+.filter-label{{font-size:.72rem;color:var(--muted);white-space:nowrap;margin-right:2px}}
+.tag-btn{{padding:3px 10px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:.76rem;cursor:pointer;transition:all .15s}}
+.tag-btn:hover{{border-color:var(--accent);color:var(--accent)}}
+.tag-btn.active{{background:var(--accent);color:#fff;border-color:var(--accent)}}
+.sep{{width:1px;height:18px;background:var(--border);margin:0 4px}}
+.badge{{background:rgba(255,255,255,.1);border-radius:10px;padding:1px 5px;font-size:.7rem}}
+.tag-btn.active .badge{{background:rgba(255,255,255,.25)}}
 main{{max-width:960px;margin:0 auto;padding:20px 16px}}
 .theme-section{{margin-bottom:36px}}
 .theme-title{{font-size:.95rem;font-weight:600;color:var(--accent);border-left:3px solid var(--accent);padding-left:10px;margin-bottom:12px;display:flex;align-items:center;gap:8px}}
@@ -199,43 +199,39 @@ details[open] summary.card-summary-toggle::before{{transform:rotate(90deg)}}
 <header>
   <h1>📰 Revue IA — {today_label}</h1>
   <span id="count">{len(articles)} articles</span>
-  <input id="search" type="search" placeholder="Rechercher..." oninput="applyFilters()"/>
+  <input id="search" type="search" placeholder="🔍 Rechercher dans les articles..." oninput="applyFilters()"/>
   <select id="dateFilter" onchange="applyFilters()">
     <option value="">Toutes les dates</option>
     {date_options}
   </select>
-  {gpu_btn}
   {pages_link}
-  <div id="extSearchBar" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;gap:8px;flex-wrap:wrap;z-index:99;align-items:center;">
-    <span style="font-size:.78rem;color:var(--muted);">Chercher aussi sur :</span>
-    <a id="lnkReddit" href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#ff4500;color:#fff;text-decoration:none;">Reddit</a>
-    <a id="lnkHN"     href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#ff6600;color:#fff;text-decoration:none;">Hacker News</a>
-    <a id="lnkGoogle" href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#4285f4;color:#fff;text-decoration:none;">Google</a>
-    <a id="lnkGH"     href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#238636;color:#fff;text-decoration:none;">GitHub</a>
-    <a id="lnkYT"     href="#" target="_blank" style="font-size:.78rem;padding:3px 10px;border-radius:4px;background:#cc0000;color:#fff;text-decoration:none;">YouTube</a>
-  </div>
 </header>
-<nav>{nav_links}</nav>
-<div id="srcBar" style="background:var(--surface);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-  <span style="font-size:.75rem;color:var(--muted);">Source :</span>
-  <button class="src-btn active" data-src="" onclick="filterSource(this)">Toutes</button>
+
+<div class="filter-bar">
+  <span class="filter-label">Thème :</span>
+  <button class="tag-btn active" data-filter="theme" data-val="" onclick="toggleFilter(this)">Tous</button>
+  {theme_btns}
+  <div class="sep"></div>
+  <span class="filter-label">Source :</span>
+  <button class="tag-btn active" data-filter="src" data-val="" onclick="toggleFilter(this)">Toutes</button>
   {source_btns}
 </div>
+
 <main id="main">
   {sections_html}
   <p id="noResults" class="no-results hidden">Aucun article ne correspond.</p>
 </main>
 <script>
-var gpuActive=false;
-var activeSrc='';
-function filterGPU(){{
-  gpuActive=!gpuActive;
-  document.querySelector('.gpu-btn').classList.toggle('active',gpuActive);
-  applyFilters();
-}}
-function filterSource(btn){{
-  activeSrc=btn.dataset.src||'';
-  document.querySelectorAll('.src-btn').forEach(function(b){{b.classList.remove('active');}});
+var activeTheme='', activeSrc='';
+function toggleFilter(btn){{
+  var f=btn.dataset.filter, v=btn.dataset.val||'';
+  if(f==='theme'){{
+    activeTheme=v;
+    document.querySelectorAll('.tag-btn[data-filter="theme"]').forEach(function(b){{b.classList.remove('active');}});
+  }} else {{
+    activeSrc=v;
+    document.querySelectorAll('.tag-btn[data-filter="src"]').forEach(function(b){{b.classList.remove('active');}});
+  }}
   btn.classList.add('active');
   applyFilters();
 }}
@@ -247,9 +243,9 @@ function applyFilters(){{
   cards.forEach(function(card){{
     var matchText=!q||(card.dataset.text||'').includes(q);
     var matchDate=!d||card.dataset.date===d;
-    var matchGpu=!gpuActive||(card.dataset.theme||'').includes('GPU');
-    var matchSrc=!activeSrc||(card.dataset.source||'')=== activeSrc;
-    var show=matchText&&matchDate&&matchGpu&&matchSrc;
+    var matchTheme=!activeTheme||(card.dataset.theme||'')===activeTheme;
+    var matchSrc=!activeSrc||(card.dataset.src||'')===activeSrc;
+    var show=matchText&&matchDate&&matchTheme&&matchSrc;
     card.classList.toggle('hidden',!show);
     if(show)visible++;
   }});
@@ -258,19 +254,6 @@ function applyFilters(){{
   }});
   document.getElementById('count').textContent=visible+' article'+(visible>1?'s':'');
   document.getElementById('noResults').classList.toggle('hidden',visible>0);
-  // Liens recherche externe
-  var bar=document.getElementById('extSearchBar');
-  if(q.length>1){{
-    var enc=encodeURIComponent(q);
-    document.getElementById('lnkReddit').href='https://www.reddit.com/search/?q='+enc+'&sort=new&t=week';
-    document.getElementById('lnkHN').href='https://hn.algolia.com/?q='+enc+'&dateRange=pastWeek';
-    document.getElementById('lnkGoogle').href='https://www.google.com/search?q='+enc+'+AI+site:reddit.com+OR+site:github.com+OR+site:arxiv.org';
-    document.getElementById('lnkGH').href='https://github.com/search?q='+enc+'&type=repositories&s=updated';
-    document.getElementById('lnkYT').href='https://www.youtube.com/results?search_query='+enc+'&sp=EgIIAQ%253D%253D';
-    bar.style.display='flex';
-  }} else {{
-    bar.style.display='none';
-  }}
 }}
 </script>
 </body>
