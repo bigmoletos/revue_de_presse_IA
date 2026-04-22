@@ -50,6 +50,16 @@ def _short_title(title: str) -> str:
     return " ".join(words[:3]) if words else title[:30]
 
 
+_REDLIB_BASE = "https://redlib.catsarch.com"
+
+def _reading_link(url: str) -> str:
+    """Remplace reddit.com par Redlib pour la lecture (contournement blocage entreprise)."""
+    if not url:
+        return url
+    import re
+    return re.sub(r"https?://(www\.)?reddit\.com", _REDLIB_BASE, url)
+
+
 def build_html(articles, pages_url: str = ""):
     today_label = _today_paris().strftime("%d/%m/%Y")
     for art in articles:
@@ -118,6 +128,7 @@ def build_html(articles, pages_url: str = ""):
             source   = art.get("source", "")
             art_date = art.get("date", "")
             src_grp  = _source_group(source)
+            read_link = _reading_link(link)
             summary_html = f"<p class='card-summary'>{summary}</p>" if summary else ""
             date_html    = f"<span class='art-date'>{art_date}</span>" if art_date else ""
             cards += f"""
@@ -130,10 +141,10 @@ def build_html(articles, pages_url: str = ""):
             </span>
           </summary>
           <div class="card-body">
-            <a href="{link}" target="_blank" rel="noopener" class="card-title">{title}</a>
+            <a href="{read_link}" target="_blank" rel="noopener" class="card-title">{title}</a>
             {summary_html}
             <div class="card-meta">
-              <a href="{link}" target="_blank" rel="noopener" class="read-link">→ Lire l'article</a>
+              <a href="{read_link}" target="_blank" rel="noopener" class="read-link">→ Lire l'article</a>
             </div>
           </div>
         </details>"""
@@ -310,6 +321,7 @@ def build_email_html(articles, pages_url: str = "") -> tuple[str, int]:
             source  = art.get("source", "")
             art_date = art.get("date", "")
             slug    = _short_title(title)
+            read_link = _reading_link(link)
             summary_row = (
                 f'<tr><td style="padding:0 16px 10px;color:#8892a4;font-size:13px;line-height:1.5;">'
                 f'{summary[:300]}{"…" if len(summary) > 300 else ""}</td></tr>'
@@ -317,13 +329,13 @@ def build_email_html(articles, pages_url: str = "") -> tuple[str, int]:
             rows += f"""
         <tr>
           <td style="padding:10px 16px 0;">
-            <a href="{link}" style="color:#7c6af7;font-size:15px;font-weight:600;text-decoration:none;">{slug}</a>
+            <a href="{read_link}" style="color:#7c6af7;font-size:15px;font-weight:600;text-decoration:none;">{slug}</a>
             <span style="color:#8892a4;font-size:12px;margin-left:8px;">{source} · {art_date}</span>
           </td>
         </tr>
         {summary_row}
         <tr><td style="padding:2px 16px 8px;">
-          <a href="{link}" style="color:#4ade80;font-size:12px;text-decoration:none;">→ Lire l'article</a>
+          <a href="{read_link}" style="color:#4ade80;font-size:12px;text-decoration:none;">→ Lire l'article</a>
         </td></tr>
         <tr><td style="border-bottom:1px solid #2a2d3a;"></td></tr>"""
 
