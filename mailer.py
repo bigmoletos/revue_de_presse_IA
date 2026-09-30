@@ -433,14 +433,39 @@ def send_email(articles, pages_url: str = ""):
         msg["From"]    = SMTP_USER
         msg["To"]      = ", ".join(recipients)
         msg.attach(MIMEText(html, "html", "utf-8"))
-        context = ssl.create_default_context()
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
-            server.ehlo()
-            server.starttls(context=context)
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_USER, recipients, msg.as_string())
-        print(f"[MAILER] Email envoye a {', '.join(recipients)} ({nb} articles)")
-        return True
+        payload = msg.as_string()
+        password = SMTP_PASSWORD.replace(" ", "")  # app password Gmail : espaces non significatifs
+
+        # 1er essai : port configuré (587 STARTTLS). Repli : 465 SSL direct.
+        attempts = [("starttls", SMTP_PORT), ("ssl", 465)]
+        last_exc = None
+        for mode, port in attempts:
+            step = "connexion"
+            try:
+                context = ssl.create_default_context()
+                if mode == "ssl":
+                    server = smtplib.SMTP_SSL(SMTP_HOST, port, timeout=30, context=context)
+                else:
+                    server = smtplib.SMTP(SMTP_HOST, port, timeout=30)
+                with server:
+                    step = "ehlo"
+                    server.ehlo()
+                    if mode == "starttls":
+                        step = "starttls"
+                        server.starttls(context=context)
+                        server.ehlo()
+                    step = "login"
+                    server.login(SMTP_USER, password)
+                    step = "envoi"
+                    server.sendmail(SMTP_USER, recipients, payload)
+                print(f"[MAILER] Email envoye a {', '.join(recipients)} ({nb} articles) via {mode}:{port}")
+                return True
+            except (smtplib.SMTPException, OSError, TimeoutError) as e:
+                print(f"[MAILER] Echec {mode}:{port} a l'etape '{step}': {type(e).__name__}: {e}")
+                if _is_auth_error(e):
+                    raise  # inutile de réessayer : identifiants refusés
+                last_exc = e
+        raise last_exc
     except (smtplib.SMTPException, OSError, TimeoutError) as e:
         if _is_auth_error(e):
             print(f"[MAILER] ERREUR AUTHENTIFICATION SMTP ({e}) - "

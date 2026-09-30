@@ -15,7 +15,9 @@ SMTP_HOST     = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT     = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER     = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-MAIL_TO       = os.getenv("MAIL_TO", "")   # destinataire(s), séparés par virgule
+# Destinataire(s), séparés par virgule. MAIL_TO_GMAIL prioritaire,
+# MAIL_TO conservé en fallback (secret GitHub Actions existant).
+MAIL_TO       = os.getenv("MAIL_TO_GMAIL") or os.getenv("MAIL_TO", "")
 
 # GitHub Gist
 GITHUB_TOKEN    = os.getenv("GITHUB_TOKEN", "")
