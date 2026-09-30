@@ -39,6 +39,8 @@ _MYMEMORY_EMAIL = os.environ.get("MYMEMORY_EMAIL", "")
 # Coupe-circuit : une fois le rate-limit MyMemory atteint, on arrête d'y taper
 # pour le reste du run (evite de spammer 200+ requêtes en 429 pour rien).
 _MYMEMORY_BLOCKED_UNTIL = 0.0
+# Backends en échec pendant ce run (évite de les rappeler à chaque batch)
+_BACKENDS_DISABLED: set[str] = set()
 
 
 def _is_likely_french(text: str) -> bool:
@@ -273,7 +275,14 @@ def translate_batch(texts: list[str]) -> list[str]:
     for name, fn in [("Google",         _translate_via_google),
                      ("LibreTranslate", _translate_via_libretranslate),
                      ("MyMemory",       _translate_via_mymemory)]:
+        if name in _BACKENDS_DISABLED:
+            continue
         result = fn(to_translate)
+        if not result and name != "MyMemory":
+            # Google / LibreTranslate bloqués depuis les IP CI : inutile de
+            # réessayer à chaque batch (MyMemory a son propre coupe-circuit)
+            print(f"  [TRANSLATE] {name} désactivé pour la suite du run")
+            _BACKENDS_DISABLED.add(name)
         if result:
             print(f"  [TRANSLATE] OK via {name} ({len(to_translate)} textes)")
             out = list(texts)
@@ -296,12 +305,14 @@ def translate_articles(articles: list[dict]) -> list[dict]:
 
     BATCH = 20
 
-    # Intercaler titre/résumé pour que le quota soit partagé
+    # Priorité quota : articles les plus récents d'abord (ceux de l'email),
+    # tous les titres avant les résumés — si le quota s'épuise, ce sont
+    # les résumés des articles anciens qui restent en anglais.
     # Format: [(index_article, "title"|"summary", texte), ...]
-    all_texts = []
-    for i, a in enumerate(articles):
-        all_texts.append((i, "title", a.get("title", "")))
-        all_texts.append((i, "summary", a.get("summary", "")))
+    order = sorted(range(len(articles)),
+                   key=lambda i: articles[i].get("date", ""), reverse=True)
+    all_texts = [(i, "title", articles[i].get("title", "")) for i in order]
+    all_texts += [(i, "summary", articles[i].get("summary", "")) for i in order]
 
     # Traduire par batch
     translated = {}

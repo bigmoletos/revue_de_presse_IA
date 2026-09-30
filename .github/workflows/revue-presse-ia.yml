@@ -37,4 +37,6 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
+          # Email de contact MyMemory : quota 5 000 -> 50 000 caracteres/jour
+          MYMEMORY_EMAIL: ${{ secrets.SMTP_USER }}
         run: python run_ci.py
