@@ -36,6 +36,9 @@ _OLLAMA_URL   = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 _OLLAMA_MODEL = os.environ.get("OLLAMA_TRANSLATE_MODEL", "mistral:latest")
 # MyMemory : email optionnel pour passer de 5000 à 10000 mots/jour
 _MYMEMORY_EMAIL = os.environ.get("MYMEMORY_EMAIL", "")
+# Coupe-circuit : une fois le rate-limit MyMemory atteint, on arrête d'y taper
+# pour le reste du run (evite de spammer 200+ requêtes en 429 pour rien).
+_MYMEMORY_BLOCKED_UNTIL = 0.0
 
 
 def _is_likely_french(text: str) -> bool:
@@ -53,7 +56,11 @@ def _is_likely_french(text: str) -> bool:
 
 def _translate_one_mymemory(text: str) -> str:
     """Traduit un texte via MyMemory (gratuit, sans clé, 5000 mots/jour)."""
+    global _MYMEMORY_BLOCKED_UNTIL
     if not text or len(text.strip()) < 5:
+        return text
+    # Coupe-circuit actif — on ne retape pas MyMemory avant la fin du blocage
+    if time.time() < _MYMEMORY_BLOCKED_UNTIL:
         return text
     try:
         params = {"q": text[:500], "langpair": "en|fr"}
@@ -64,6 +71,11 @@ def _translate_one_mymemory(text: str) -> str:
             params=params,
             timeout=8,
         )
+        # 429/403 renvoyés directement en HTTP par MyMemory (pas seulement en JSON)
+        if resp.status_code in (429, 403):
+            print(f"  [MYMEMORY] Rate limit HTTP {resp.status_code} — coupure 5 min")
+            _MYMEMORY_BLOCKED_UNTIL = time.time() + 300
+            return text
         resp.raise_for_status()
         data = resp.json()
         status = data.get("responseStatus", 0)
@@ -71,7 +83,8 @@ def _translate_one_mymemory(text: str) -> str:
 
         # Status 429 = rate limit, 403 = quota dépassé
         if status in (429, 403):
-            print(f"  [MYMEMORY] Rate limit atteint (status={status})")
+            print(f"  [MYMEMORY] Rate limit atteint (status={status}) — coupure 5 min")
+            _MYMEMORY_BLOCKED_UNTIL = time.time() + 300
             return text
 
         # MyMemory renvoie le texte original si la traduction échoue
@@ -79,8 +92,17 @@ def _translate_one_mymemory(text: str) -> str:
             return translated
         # Vérifier si c'est un message d'erreur MyMemory
         if "MYMEMORY WARNING" in (translated or "").upper():
-            print(f"  [MYMEMORY] Quota warning: {translated[:80]}")
+            print(f"  [MYMEMORY] Quota warning: {translated[:80]} — coupure 5 min")
+            _MYMEMORY_BLOCKED_UNTIL = time.time() + 300
             return text
+    except requests.exceptions.HTTPError as e:
+        # 429/403 peuvent aussi arriver ici si raise_for_status() les attrape
+        code = e.response.status_code if e.response is not None else 0
+        if code in (429, 403):
+            print(f"  [MYMEMORY] Rate limit HTTP {code} — coupure 5 min")
+            _MYMEMORY_BLOCKED_UNTIL = time.time() + 300
+        else:
+            print(f"  [MYMEMORY] Erreur HTTP: {e}")
     except Exception as e:
         print(f"  [MYMEMORY] Erreur: {e}")
     return text
@@ -123,7 +145,7 @@ def _translate_via_libretranslate(texts: list[str]) -> list[str] | None:
     """
     instances = [
         "https://libretranslate.com",
-        "https://translate.argosopentech.com",
+        # "https://translate.argosopentech.com",  # déconnecté — domaine mort (DNS ne résout plus)
         "https://translate.terraprint.co",
     ]
     results = list(texts)
@@ -162,14 +184,21 @@ def _translate_via_mymemory(texts: list[str]) -> list[str] | None:
     """
     Traduit une liste via MyMemory séquentiellement avec délai fixe.
     Séquentiel pour éviter le rate-limit (5000 mots/jour, ~1 req/s conseillé).
+    S'arrête dès que le coupe-circuit rate-limit s'active pour ne pas
+    enchaîner des requêtes vouées à échouer.
     """
     results = list(texts)
     indices = [i for i, t in enumerate(texts) if t and len(t.strip()) > 5]
     if not indices:
         return results
 
+    if time.time() < _MYMEMORY_BLOCKED_UNTIL:
+        return None  # coupure active — laisser la main au backend suivant
+
     ok = 0
     for pos, i in enumerate(indices):
+        if time.time() < _MYMEMORY_BLOCKED_UNTIL:
+            break  # rate-limit atteint pendant ce batch — inutile de continuer
         if pos > 0:
             time.sleep(0.3)  # délai fixe entre requêtes
         translated = _translate_one_mymemory(texts[i])
@@ -239,11 +268,11 @@ def translate_batch(texts: list[str]) -> list[str]:
     # 2. Google Translate (deep-translator, sans clé — CI + local)
     # 3. LibreTranslate (instances publiques — sans quota)
     # 4. MyMemory (CI + local fallback — gratuit, sans clé)
-    # 5. Ollama local (fallback final)
+    # Ollama (fallback local) déconnecté de la chaîne : plus rien ne tourne
+    # en local, la fonction _translate_via_ollama reste dispo si besoin un jour.
     for name, fn in [("Google",         _translate_via_google),
                      ("LibreTranslate", _translate_via_libretranslate),
-                     ("MyMemory",       _translate_via_mymemory),
-                     ("Ollama",         _translate_via_ollama)]:
+                     ("MyMemory",       _translate_via_mymemory)]:
         result = fn(to_translate)
         if result:
             print(f"  [TRANSLATE] OK via {name} ({len(to_translate)} textes)")
