@@ -388,8 +388,30 @@ def build_email_html(articles, pages_url: str = "") -> tuple[str, int]:
     return html, len(recent)
 
 
+class SMTPAuthError(Exception):
+    """Levée quand Gmail rejette les identifiants (mot de passe d'application
+    invalide/expiré). Distincte d'une simple indisponibilité réseau, pour que
+    l'appelant (run_ci.py) puisse faire échouer le job CI de façon visible."""
+    pass
+
+
+def _is_auth_error(exc: Exception) -> bool:
+    """Détecte une erreur d'authentification SMTP dans une exception,
+    y compris quand Gmail coupe la connexion au lieu de répondre proprement
+    (ex: 'Connection unexpectedly closed' suite à des credentials invalides)."""
+    if isinstance(exc, smtplib.SMTPAuthenticationError):
+        return True
+    msg = str(exc)
+    markers = ("BadCredentials", "535", "534", "Username and Password not accepted")
+    return any(m in msg for m in markers)
+
+
 def send_email(articles, pages_url: str = ""):
-    """Envoie la revue par email SMTP. Retourne False si SMTP indisponible.
+    """Envoie la revue par email SMTP.
+    Retourne False si SMTP non configuré ou indisponible (ex: réseau HPS) —
+    fallback silencieux volontaire dans ce cas.
+    Lève SMTPAuthError si les identifiants Gmail sont invalides/expirés,
+    pour que l'appelant puisse remonter une vraie erreur (pas un simple skip).
     MAIL_TO accepte plusieurs adresses séparées par virgule ou point-virgule.
     Envoie uniquement les articles de la veille avec un HTML compatible email.
     """
@@ -420,6 +442,10 @@ def send_email(articles, pages_url: str = ""):
         print(f"[MAILER] Email envoye a {', '.join(recipients)} ({nb} articles)")
         return True
     except (smtplib.SMTPException, OSError, TimeoutError) as e:
+        if _is_auth_error(e):
+            print(f"[MAILER] ERREUR AUTHENTIFICATION SMTP ({e}) - "
+                  f"mot de passe d'application Gmail invalide ou expiré")
+            raise SMTPAuthError(str(e)) from e
         print(f"[MAILER] SMTP indisponible ({e}) - fallback rapport HTML")
         return False
     except Exception as e:

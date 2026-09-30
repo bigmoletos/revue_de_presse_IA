@@ -11,7 +11,7 @@ from datetime import datetime
 
 from config import CRON_HOUR, CRON_MINUTE
 from scraper import collect_news
-from mailer import send_email
+from mailer import send_email, SMTPAuthError
 from notifier import deliver
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -26,7 +26,15 @@ def run_daily_digest():
     try:
         articles = collect_news()
         log.info(f"{len(articles)} sujets collectés")
-        ok = send_email(articles)
+        try:
+            ok = send_email(articles)
+        except SMTPAuthError as e:
+            log.error(
+                f"Authentification SMTP refusée par Gmail: {e} — "
+                "mot de passe d'application invalide ou expiré "
+                "(https://myaccount.google.com/apppasswords)"
+            )
+            ok = False
         if ok:
             log.info("Email envoyé")
         else:

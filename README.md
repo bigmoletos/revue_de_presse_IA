@@ -98,6 +98,17 @@ Aller dans : **Settings > Pages**
 
 ---
 
+## Détection des erreurs d'authentification SMTP
+
+Depuis la mise à jour du script, une distinction est faite entre deux cas :
+
+- **SMTP indisponible** (réseau, timeout) → le job continue normalement, fallback silencieux (comportement historique, utile pour un réseau d'entreprise qui bloque le SMTP).
+- **Authentification refusée par Gmail** (mot de passe d'application invalide/expiré, erreur `535 BadCredentials`) → le job **échoue explicitement** (`exit code 2`) et un résumé d'erreur est ajouté au Job Summary GitHub Actions, avec les liens directs pour corriger.
+
+Ça évite le piège précédent : un run marqué "Success" alors que l'email n'était jamais parti. Si tu vois le job passer en échec avec ce message, va directement régénérer le mot de passe d'application (voir section "Maintenance" plus bas).
+
+---
+
 ## Email quotidien
 
 Le mail est envoyé chaque matin après la collecte. Il contient :
